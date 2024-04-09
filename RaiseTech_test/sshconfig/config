@@ -1,0 +1,6 @@
+Host target
+    HostName: 54.249.215.37
+    Port 22
+    User ec2-user
+    StrictHostKeyChecking no
+    IdentityFile TSUGUCHI_KEY

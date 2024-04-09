@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+gem 'serverspec'
+gem 'ed25519'
+gem 'bcrypt_pbkdf'
+gem 'highline'
+gem 'rake'
