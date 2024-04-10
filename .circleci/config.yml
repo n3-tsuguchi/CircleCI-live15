@@ -6,20 +6,6 @@ orbs:
   ruby: circleci/ruby@2.1.1
 
 jobs:
-  execute-cloud-formation:
-    executor: aws-cli/default
-    steps:
-      - checkout
-      - aws-cli/setup:
-          aws_access_key_id: AWS_ACCESS_KEY_ID
-          aws_secret_access_key: AWS_SECRET_ACCESS_KEY
-          region: AWS_DEFAULT_REGION
-      - run:
-          name: Deploy cloudformation
-          command: |
-            set -x
-            aws cloudformation deploy --template-file cloudformation/service.yml --stack-name sample-Stack --parameter-overrides CIDRIP=10.0.0.0/24 Prefix=RaiseTech --capabilities CAPABILITY_IAM
-
   execute-ansible:
     executor: ansible-playbook/default
     circleci_ip_ranges: true
@@ -52,10 +38,7 @@ jobs:
 workflows:
   RaiseTech:
     jobs:
-      - execute-cloud-formation
-      - execute-ansible:
-          requires:
-            - execute-cloud-formation
+      - execute-ansible
       - execute-serverspec:
           requires:
             - execute-ansible
