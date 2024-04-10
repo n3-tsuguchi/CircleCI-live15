@@ -1,7 +1,0 @@
-- name: start_nginx
-  ansible.builtin.systemd:
-    name: nginx.service
-    enabled: yes
-    state: started
-  become: yes
-  
