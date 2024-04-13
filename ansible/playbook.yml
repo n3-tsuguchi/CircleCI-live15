@@ -7,5 +7,31 @@
         name: git
         state: present
         lock_timeout: 180
+    - name: updated yum
+      yum:
+        name: "*"
+        state: latest
+      become: yes
+    
+    - name: installed required packages
+      yum:
+        name:
+          - gcc-c++
+          - glibc-headers
+          - openssl-devel
+          - readline
+          - libyaml-devel
+          - readline-devel
+          - zlib
+          - zlib-devel
+          - libffi-devel
+          - libxml2
+          - libxslt
+          - libxml2-devel
+          - libxslt-devel
+          - sqlite-devel
+        state: latest
+      become: yes
+        
   roles:
     - nginx
