@@ -41,5 +41,38 @@
         name: git
         state: installed
       become: yes
+
+    - name: deployed .bash_profile
+      template:
+        src: .bash_profile
+        dest: ~/.bash_profile
+        mode: 0644
+      become_user: "{{ __working_user }}"
+
+    - name: made dir .bash.d
+      file:
+        path: ~/.bash.d
+        state: directory
+        mode: 0755
+      become_user: "{{ __working_user }}"
+
+    - name: installed rbenv
+      git:
+        repo: https://github.com/sstephenson/rbenv.git
+        dest: ~/.rbenv
+        
+
+    - name: registerd rbenv path
+      template:
+        src: ./001_rbenv.sh
+        dest: ~/.bash.d/001_rbenv.sh
+        mode: 0755
+      become_user: "{{ __working_user }}"
+
+    - name: installed ruby-build
+      git:
+        repo: https://github.com/sstephenson/ruby-build.git
+        dest: ~/.rbenv/plugins/ruby-build
+      become_user: "{{ __working_user }}"
   roles:
     - nginx
