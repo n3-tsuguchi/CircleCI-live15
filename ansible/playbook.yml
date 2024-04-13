@@ -30,6 +30,7 @@
           - libxml2-devel
           - libxslt-devel
         state: present
+      become: yes
 
     - name: set LANG=ja_JP.UTF-8 in /etc/locale.conf
       lineinfile:
@@ -77,5 +78,4 @@
         repo: https://github.com/sstephenson/ruby-build.git
         dest: ~/.rbenv/plugins/ruby-build
       become_user: "{{ __working_user }}"
-  roles:
-    - nginx
+      
