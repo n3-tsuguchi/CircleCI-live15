@@ -11,21 +11,25 @@
     - name: installed required packages
       yum:
         name:
+          - git
           - gcc-c++
-          - glibc-headers
+          - patch
+          - bzip2
           - openssl-devel
-          - readline
           - libyaml-devel
-          - readline-devel
-          - zlib
-          - zlib-devel
           - libffi-devel
-          - libxml2
-          - libxslt
+          - readline-devel
+          - zlib-devel
+          - gdbm-devel
+          - ncurses-devel
+          - make
+          - curl
+          - ImageMagick-devel
+          - libcurl-devel
+          - libicu-devel
           - libxml2-devel
           - libxslt-devel
-          - sqlite-devel
-        state: latest
+        state: present
       become: yes
 
     - name: set LANG=ja_JP.UTF-8 in /etc/locale.conf
