@@ -2,36 +2,6 @@
 - hosts: web_server
   become: yes
   tasks:
-    - name: yum update
-      yum:
-        name: "*"
-        state: latest
-      become: yes
-    
-    - name: installed required packages
-      yum:
-        name:
-          - git
-          - gcc-c++
-          - patch
-          - bzip2
-          - openssl-devel
-          - libyaml-devel
-          - libffi-devel
-          - readline-devel
-          - zlib-devel
-          - gdbm-devel
-          - ncurses-devel
-          - make
-          - curl
-          - ImageMagick-devel
-          - libcurl-devel
-          - libicu-devel
-          - libxml2-devel
-          - libxslt-devel
-        state: present
-      become: yes
-
     - name: set LANG=ja_JP.UTF-8 in /etc/locale.conf
       lineinfile:
         dest: /etc/locale.conf
