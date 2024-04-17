@@ -1,0 +1,17 @@
+---
+- name: check node install
+  shell: bash -lc "node --version | grep {{ node_version }}"
+  register: check_node_installed
+  changed_when: no
+  ignore_errors: yes
+
+- name: install nvm
+  ansible.builtin.shell: >
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+  args:
+    creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+  when: check_node_installed is failed
+
+- name: install node
+  shell: bash -lc "nvm install {{ node_version }}"
+  when: check_node_installed is failed
