@@ -1,0 +1,32 @@
+---
+- name: Remove MariaDB
+  become: true
+  yum:
+    name: mariadb-libs
+    state: absent
+
+- name: Install MySQL
+  become: true
+  yum:
+    name: 'https://repo.mysql.com//mysql80-community-release-el7-7.noarch.rpm'
+    state: present
+  register: mysql_installed
+
+- name: Import GPG key 
+  become: true
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+  when: mysql_installed.changed
+
+- name: install mysql-community-client
+  become: true
+  yum:
+    name: mysql-community-client
+    state: present
+
+- name: Install mysql-community-devel
+  become: true
+  yum:
+    name: mysql-community-devel
+    state: present
