@@ -1,0 +1,24 @@
+---
+- name: create directory /var/www
+  become: yes
+  ansible.builtin.file:
+    path: /var/www
+    state: directory
+    mode: "0755"
+    owner: ec2-user
+
+- name: clone sample-app
+  ansible.builtin.git:
+    repo: https://github.com/yuta-ushijima/raisetech-live8-sample-app.git
+    dest: "{{ app_dir }}"
+    force: yes
+
+- name: webpack install
+  shell: bash -lc "npm install webpack-cli --save-dev"
+  args: 
+    chdir: "{{ app_dir }}"
+
+- name: bundle install
+  shell: bash -lc "bundle install"
+  args: 
+    chdir: "{{ app_dir }}"
