@@ -11,7 +11,9 @@
 
   tasks:
   - name: Gather facts
-    gather_facts: yes
+    action:
+      module_name: some_module
+      parameter_name: true
 
   roles:
     - { role: 01_app, tags: 01_app }
