@@ -1,0 +1,53 @@
+---
+- name: check rbenv exists
+  shell: bash -lc "rbenv --version"
+  register: rbenv_exists
+  changed_when: no
+  ignore_errors: yes
+
+- name: rbenv clone
+  git:
+    repo: https://github.com/sstephenson/rbenv.git
+    dest: /home/ec2-user/.rbenv
+  when: rbenv_exists is failed
+
+- name: install ruby-build
+  git:
+    repo: https://github.com/sstephenson/ruby-build.git
+    dest: /home/ec2-user/.rbenv/plugins/ruby-build
+  when: rbenv_exists is failed
+
+- name: path for rbenv
+  lineinfile: 
+    path: /home/ec2-user/.bash_profile
+    line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
+  when: rbenv_exists is failed
+
+- name: eval rbenv init
+  lineinfile: 
+    path: /home/ec2-user/.bash_profile
+    line: 'eval "$(rbenv init -)"'
+  when: rbenv_exists is failed
+
+- name: execute $SHELL -l
+  shell: "exec $SHELL -l"
+  when: rbenv_exists is failed
+
+
+- name: check ruby exists
+  shell: bash -lc "rbenv versions | grep {{ ruby_version }}"
+  register: ruby_exists
+  changed_when: no
+  ignore_errors: yes
+
+- name: ruby install
+  shell: bash -lc "rbenv install {{ ruby_version }}"
+  when: ruby_exists is failed
+
+- name: rbenv rehash
+  shell: bash -lc "rbenv rehash"
+  when: ruby_exists is failed
+
+- name: set ruby version
+  shell: bash -lc "rbenv global {{ ruby_version }}"
+  when: ruby_exists is failed
