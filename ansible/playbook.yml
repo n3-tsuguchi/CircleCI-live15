@@ -1,9 +1,6 @@
 ---
 - hosts: web_server
   become: yes
-  tasks:
-  - name: Gather facts
-    gather_facts: yes
 
   vars: 
     app_dir: /var/www/raisetech-live8-sample-app
@@ -11,6 +8,10 @@
     AWS_RDS_PW: "{{ lookup('env', 'AWS_RDS_PW') }}"
     AWS_RDS_ENDPOINT: "{{ lookup('env','AWS_RDS_ENDPOINT') }}"
     AWS_S3_BUCKET: "{{ lookup('env','AWS_S3_BUCKET') }}"
+
+  tasks:
+  - name: Gather facts
+    gather_facts: yes
 
   roles:
     - { role: 01_app, tags: 01_app }
