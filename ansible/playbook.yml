@@ -1,5 +1,5 @@
 ---
-- hosts: web_server
+- hosts: 43.207.74.110
   become: yes
 
   vars: 
