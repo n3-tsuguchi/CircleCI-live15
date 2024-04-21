@@ -2,7 +2,8 @@
 - hosts: web_server
   become: yes
   tasks:
-    - gather_facts: true
+  - name: Gather facts
+    gather_facts: yes
 
   vars: 
     app_dir: /var/www/raisetech-live8-sample-app
