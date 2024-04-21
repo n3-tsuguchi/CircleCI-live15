@@ -9,6 +9,6 @@
     - { role: node, tags: node }
     - { role: yarn, tags: yarn }
     - { role: mysql, tags: mysql }
-    - { role: app, tags: app }
+    
     - { role: nginx, tags: nginx }
     
