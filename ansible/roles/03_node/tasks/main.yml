@@ -1,0 +1,21 @@
+---
+- name: check node exists
+  shell: node --version
+  register: node_exists
+  changed_when: no
+  ignore_errors: yes
+
+- name: nvm install
+  uri:
+    url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh
+    method: GET
+  when: node_exists is failed
+
+- name: source .bashrc
+  shell: |
+    source ~/.bashrc
+  when: node_exists is failed
+
+- name: node install
+  shell: bash -lc "nvm install {{ node_version }}"
+  when: node_exists is failed
