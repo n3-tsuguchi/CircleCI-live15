@@ -1,0 +1,15 @@
+---
+- name: check bundler exists
+  shell: bash -lc "bundler version | grep {{ bundler_version }}"
+  register: bundler_exists
+  changed_when: no
+  ignore_errors: yes
+
+- name: bundler install
+  gem: 
+    name: bundler
+    version: "{{ bundler_version }}"
+    executable: "/home/ec2-user/.rbenv/shims/gem"
+    user_install: no
+  when: bundler_exists is failed
+  
