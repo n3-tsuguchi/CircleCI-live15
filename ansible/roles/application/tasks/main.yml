@@ -1,7 +1,0 @@
----
-- name: Clone sample-app
-  ansible.builtin.git:
-    repo: https://github.com/yuta-ushijima/raisetech-live8-sample-app.git
-    dest: "{{ app_dir }}"
-    force: yes
-    
