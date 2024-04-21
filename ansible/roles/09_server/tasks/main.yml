@@ -77,5 +77,3 @@
     systemctl restart puma
   args:
     chdir: "{{ app_dir }}"
- 19 changes: 19 additions & 0 deletions19
- 
