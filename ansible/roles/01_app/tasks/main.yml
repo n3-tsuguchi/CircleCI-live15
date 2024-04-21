@@ -1,0 +1,28 @@
+---
+- name: yum Upgrade all packages
+  become: yes
+  yum: 
+    name: "*"
+    state: latest
+
+- name: yum install package
+  become: yes
+  yum:
+    state: present
+    name: 
+      - git
+      - make
+      - gcc-c++
+      - patch
+      - openssl-devel
+      - libyaml-devel
+      - libffi-devel
+      - libicu-devel
+      - libxml2
+      - libxslt
+      - libxml2-devel
+      - libxslt-devel
+      - zlib-devel
+      - readline-devel
+      - ImageMagick
+      - ImageMagick-devel
