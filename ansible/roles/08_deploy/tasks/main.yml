@@ -1,0 +1,43 @@
+---
+- name: create database.yml
+  become: yes
+  template:
+    src: database.yml.j2
+    dest: "{{ app_dir }}/config/database.yml"
+
+- name: edit application.rb
+  become: yes
+  template:
+    src: application.rb.j2
+    dest: "{{ app_dir }}/config/application.rb"
+
+
+- name: bin/setup
+  shell: |
+    bash -lc "bin/setup"
+  args: 
+    chdir: "{{ app_dir }}"
+
+- name: asset precompile
+  shell: |
+    bash -lc "rails assets:precompile"
+  args: 
+    chdir: "{{ app_dir }}"
+
+- name: edit puma.rb
+  become: yes
+  template:
+    src: puma.rb.j2
+    dest: "{{ app_dir }}/config/puma.rb"
+
+- name: edit development.rb
+  become: yes
+  template:
+    src: development.rb.j2
+    dest: "{{ app_dir }}/config/environments/development.rb"
+
+- name: edit storage.yml
+  become: yes
+  template:
+    src: storage.yml.j2
+    dest: "{{ app_dir }}/config/storage.yml"
