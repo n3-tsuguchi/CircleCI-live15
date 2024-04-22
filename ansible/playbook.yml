@@ -9,5 +9,5 @@
     AWS_RDS_ENDPOINT: "{{ lookup('env','AWS_RDS_ENDPOINT') }}"
     AWS_S3_BUCKET: "{{ lookup('env','AWS_S3_BUCKET') }}"
 
-  roles:
-    - { role: app, tags: app }
+  tasks:
+  
