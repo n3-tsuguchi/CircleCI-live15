@@ -10,6 +10,7 @@
     AWS_S3_BUCKET: "{{ lookup('env','AWS_S3_BUCKET') }}"
 
   roles:
+  become: yes
     - { role: 01_app, tags: 01_app }
     - { role: 02_ruby, tags: 02_ruby }
     - { role: 03_node, tags: 03_node }
