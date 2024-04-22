@@ -1,39 +1,31 @@
 ---
 - hosts: web_server
   remote_user: ec2-user
-
-  vars: 
-    app_dir: /var/www/raisetech-live8-sample-app
-    AWS_ALB_DNS_NAME: "{{ lookup('env','AWS_ALB_DNS_NAME') }}"
-    AWS_RDS_PW: "{{ lookup('env', 'AWS_RDS_PW') }}"
-    AWS_RDS_ENDPOINT: "{{ lookup('env','AWS_RDS_ENDPOINT') }}"
-    AWS_S3_BUCKET: "{{ lookup('env','AWS_S3_BUCKET') }}"
-
   tasks:
-  - name: yum Upgrade all packages
-  become: yes
-  yum: 
-    name: "*"
-    state: latest
+    - name: yum Upgrade all packages
+      become: yes
+      yum: 
+        name: "*"
+        state: latest
 
-- name: yum install package
-  become: yes
-  yum:
-    state: present
-    name: 
-      - git
-      - make
-      - gcc-c++
-      - patch
-      - openssl-devel
-      - libyaml-devel
-      - libffi-devel
-      - libicu-devel
-      - libxml2
-      - libxslt
-      - libxml2-devel
-      - libxslt-devel
-      - zlib-devel
-      - readline-devel
-      - ImageMagick
-      - ImageMagick-devel
+    - name: yum install package
+      become: yes
+      yum:
+        state: present
+        name: 
+          - git
+          - make
+          - gcc-c++
+          - patch
+          - openssl-devel
+          - libyaml-devel
+          - libffi-devel
+          - libicu-devel
+          - libxml2
+          - libxslt
+          - libxml2-devel
+          - libxslt-devel
+          - zlib-devel
+          - readline-devel
+          - ImageMagick
+          - ImageMagick-devel
