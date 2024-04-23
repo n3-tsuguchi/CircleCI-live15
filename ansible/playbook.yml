@@ -4,14 +4,13 @@
   tasks:
     - name: dnf Upgrade all packages
       become: yes
-      dnf: 
-        name: python2-dnf
+      yum: 
         state: latest
         update_cache: yes
 
     - name: dnf install package
       become: yes
-      dnf:
+      yum:
         state: present
         name: 
           - git
