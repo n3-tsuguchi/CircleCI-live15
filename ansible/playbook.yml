@@ -5,7 +5,7 @@
     - name: dnf Upgrade all packages
       become: yes
       dnf: 
-        name: python3-dnf
+        name: python2-dnf
         state: latest
         update_cache: yes
 
