@@ -1,34 +1,23 @@
 ---
 - hosts: web_server
   remote_user: ec2-user
-  tasks:
-    - name: yum Upgrade all packages
-      become: yes
-      yum:
-        name: "*"
-        state: latest
-      ignore_errors: yes
 
-    - name: yum install package
-      become: yes
-      yum:
-        name:
-          - git
-          - gcc-c++
-          - patch
-          - bzip2
-          - openssl-devel
-          - libyaml-devel
-          - libffi-devel
-          - readline-devel
-          - zlib-devel
-          - gdbm-devel
-          - ncurses-devel
-          - make
-          - curl
-          - ImageMagick-devel
-          - libcurl-devel
-          - libicu-devel
-          - libxml2-devel
-          - libxslt-devel
-        state: present
+
+  vars: 
+    app_dir: /var/www/raisetech-live8-sample-app
+    AWS_ALB_DNS_NAME: "{{ lookup('env','AWS_ALB_DNS_NAME') }}"
+    AWS_RDS_PW: "{{ lookup('env', 'AWS_RDS_PW') }}"
+    AWS_RDS_ENDPOINT: "{{ lookup('env','AWS_RDS_ENDPOINT') }}"
+    AWS_S3_BUCKET: "{{ lookup('env','AWS_S3_BUCKET') }}"
+
+  roles:
+    - { role: 01_app, tags: 01_app }
+    - { role: 02_ruby, tags: 02_ruby }
+    - { role: 03_node, tags: 03_node }
+    - { role: 04_yarn, tags: 04_yarn }
+    - { role: 05_bundler, tags: 05_bundler }
+    - { role: 06_mysql, tags: 06_mysql }
+    - { role: 07_app_clone, tags: 07_app_clone }
+    - { role: 08_deploy, tags: 08_deploy }
+    - { role: 09_server, tags: 09_server }
+
