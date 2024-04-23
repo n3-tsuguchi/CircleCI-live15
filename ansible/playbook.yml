@@ -7,6 +7,7 @@
       dnf: 
         name: python3-dnf
         state: latest
+        update_cache: yes
 
     - name: dnf install package
       become: yes
