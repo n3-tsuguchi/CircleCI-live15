@@ -4,9 +4,9 @@
   tasks:
     - name: yum Upgrade all packages
       become: yes
-      yum: 
+      yum:
+        name: "*"
         state: latest
-        update_cache: yes
 
     - name: yum install package
       become: yes
