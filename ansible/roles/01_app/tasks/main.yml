@@ -1,4 +1,6 @@
 ---
+- name: Gathering Facts
+      gather_facts: true
 - name: yum Upgrade all packages
   become: yes
   yum: 
@@ -6,7 +8,7 @@
     state: latest
 
 - name: yum install package
-  become: yes
+  become: true
   yum:
     state: present
     name: 
