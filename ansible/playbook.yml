@@ -5,7 +5,7 @@
     - name: dnf Upgrade all packages
       become: yes
       dnf: 
-        name: "*"
+        name: python3-dnf
         state: latest
 
     - name: dnf install package
