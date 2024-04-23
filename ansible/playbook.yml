@@ -2,15 +2,15 @@
 - hosts: web_server
   remote_user: ec2-user
   tasks:
-    - name: yum Upgrade all packages
+    - name: dnf Upgrade all packages
       become: yes
-      yum: 
+      dnf: 
         name: "*"
         state: latest
 
-    - name: yum install package
+    - name: dnf install package
       become: yes
-      yum:
+      dnf:
         state: present
         name: 
           - git
