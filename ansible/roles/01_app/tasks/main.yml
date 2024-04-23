@@ -1,7 +1,4 @@
 ---
-- name: Gathering Facts
-  gather_facts: true
-
 - name: yum Upgrade all packages
   become: yes
   yum: 
