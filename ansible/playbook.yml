@@ -1,7 +1,7 @@
 ---
 - hosts: 43.207.74.110
   remote_user: ec2-user
-
+  become: yes
 
   vars: 
     app_dir: /var/www/raisetech-live8-sample-app
