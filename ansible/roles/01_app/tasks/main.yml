@@ -5,7 +5,7 @@
     name: "*"
     state: latest
     disable_gpg_check: yes
-        disable_repo: repository_name_goes_here
+    disable_repo: repository_name_goes_here
 
 - name: yum install package
   become: yes
