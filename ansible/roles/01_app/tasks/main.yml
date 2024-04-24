@@ -4,8 +4,8 @@
   yum: 
     name: "*"
     state: latest
-    disable_gpg_check: yes
-    disable_repo: repository_name_goes_here
+    enablerepo: '*'
+    disable_excludes: main,updates
 
 - name: yum install package
   become: yes
