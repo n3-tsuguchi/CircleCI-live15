@@ -4,8 +4,6 @@
   yum: 
     name: "*"
     state: latest
-    enablerepo: '*'
-    disable_excludes: main,updates
 
 - name: yum install package
   become: yes
