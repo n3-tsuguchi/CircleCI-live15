@@ -30,6 +30,7 @@
       - libxslt
       - libxml2-devel
       - libxslt-devel
+      
       - zlib-devel
       - readline-devel
       - ImageMagick
