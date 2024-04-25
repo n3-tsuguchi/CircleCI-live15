@@ -1,9 +1,17 @@
 ---
 - name: yum Upgrade all packages
   become: yes
-  yum: 
-    name: "*"
-    state: latest
+- name: Disable failing repository
+      yum:
+        name: "*"
+        enablerepo: your-failing-repo
+        state: disabled
+- name: Upgrade all packages
+      yum:
+        name: "*"
+        state: latest
+        update_cache: yes
+        skip_broken: yes
 
 - name: yum install package
   become: yes
