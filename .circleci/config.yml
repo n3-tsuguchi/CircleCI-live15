@@ -1,45 +1,31 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/configuration-reference
 version: 2.1
 
-orbs:
-  aws-cli: circleci/aws-cli@4.1.2
-  ansible-playbook: orbss/ansible-playbook@0.0.5
-  ruby: circleci/ruby@2.1.1
-
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  execute-ansible:
-    executor: ansible-playbook/default
-    circleci_ip_ranges: true
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints:
-            - '10:3a:69:ba:f3:55:2b:12:b4:58:2e:fb:7d:97:30:8c:93:09:73:ca'
-      - ansible-playbook/install:
-          version: 2.10.7
-      - ansible-playbook/playbook:
-          playbook: ansible/playbook.yml
-          playbook-options: '-u ec2-user -i ansible/inventory'
+  say-hello:
+    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
+    docker:
+      # Specify the version you desire here
+      # See: https://circleci.com/developer/images/image/cimg/base
+      - image: cimg/base:current
 
-  execute-serverspec:
-    executor: ruby/default
-    circleci_ip_ranges: true
+    # Add steps to the job
+    # See: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
     steps:
+      # Checkout the code as the first step.
       - checkout
-      - ruby/install:
-          version: '3.2.3'
-      - ruby/install-deps:
-          app-dir: serverspec
       - run:
-          name: 'execute serverspec'
-          command: |
-            cd serverspec
-            bundle exec rspec
+          name: "Say hello"
+          command: "echo Hello, World!"
 
+# Orchestrate jobs using workflows
+# See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  RaiseTech:
+  say-hello-workflow: # This is the name of the workflow, feel free to change it to better match your workflow.
+    # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - execute-ansible
-      - execute-serverspec:
-          requires:
-            - execute-ansible
-
+      - say-hello
