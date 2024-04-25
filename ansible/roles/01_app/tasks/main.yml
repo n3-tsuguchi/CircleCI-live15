@@ -5,6 +5,7 @@
     state: latest
     update_cache: yes
     skip_broken: yes
+  become_user: root
 
 - name: Disable failing repository
   yum:
