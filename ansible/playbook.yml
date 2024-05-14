@@ -1,5 +1,5 @@
 ---
-- hosts: 43.207.74.110
+- hosts: web_server
   remote_user: ec2-user
   become: yes
 
