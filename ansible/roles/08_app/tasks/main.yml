@@ -1,0 +1,44 @@
+---
+- name: git clone app
+  become: true
+  git: 
+    repo: https://github.com/yuta-ushijima/raisetech-live8-sample-app.git
+    dest: "{{ sample_app_dir }}"
+    force: yes
+  register: git_clone
+
+- name: bundle install
+  shell: bash -lc "bundle install"
+  args: 
+    chdir: "{{ sample_app_dir }}"
+  when: git_clone.changed
+
+- name: change owner /var/www/raisetech-live8-sample-app
+  become: true
+  file:
+    path: "{{ sample_app_dir }}"
+    state: directory
+    owner: ec2-user
+    recurse: yes
+  when: git_clone.changed
+
+- name: Copy configuration files
+  become: true
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ sample_app_dir }}/config/{{ item.dest }}"
+  loop:
+    - { src: 'database.yml.j2', dest: 'database.yml' }
+    - { src: 'development.rb.j2', dest: 'environments/development.rb' }
+    - { src: 'storage.yml.j2', dest: 'storage.yml' }
+    - { src: 'unicorn.rb.j2', dest: 'unicorn.rb' }
+
+- name: Run application setup script
+  shell: bash -lc "bin/setup"
+  args:
+    chdir: "{{ sample_app_dir }}"
+
+- name: Precompile application assets
+  shell: bash -lc "rails assets:precompile"
+  args:
+    chdir: "{{ sample_app_dir }}"
