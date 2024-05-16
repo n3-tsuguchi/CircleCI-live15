@@ -3,20 +3,23 @@
   remote_user: ec2-user
   become: yes
 
-  vars: 
-    app_dir: /var/www/raisetech-live8-sample-app
-    AWS_ALB_DNS_NAME: "{{ lookup('env','AWS_ALB_DNS_NAME') }}"
-    AWS_RDS_PW: "{{ lookup('env', 'AWS_RDS_PW') }}"
-    AWS_RDS_ENDPOINT: "{{ lookup('env','AWS_RDS_ENDPOINT') }}"
-    AWS_S3_BUCKET: "{{ lookup('env','AWS_S3_BUCKET') }}"
-
   roles:
-    - { role: 01_app, tags: 01_app }
-    - { role: 02_ruby, tags: 02_ruby }
-    - { role: 03_node, tags: 03_node }
-    - { role: 04_yarn, tags: 04_yarn }
-    - { role: 05_bundler, tags: 05_bundler }
-    - { role: 06_mysql, tags: 06_mysql }
-    - { role: 07_app_clone, tags: 07_app_clone }
-    - { role: 08_deploy, tags: 08_deploy }
-    - { role: 09_server, tags: 09_server }
+    - { role: 01_yum, tags: yum }
+    - { role: 02_ruby, tags: ruby }
+    - { role: 03_bundler, tags: bundler }
+    - { role: 04_rails, tags: rails }
+    - { role: 05_node, tags: node }
+    - { role: 06_yarn, tags: yarn }
+    - { role: 07_mysql, tags: mysql }
+    - { role: 08_app, tags: app }
+    - { role: 09_nginx, tags: nginx }
+
+  vars:
+    ansible_become_method: sudo
+    sample_app_dir: /var/www/raisetech-live8-sample-app
+    aws_alb_host : "{{ (lookup('env','AWS_ALB_HOST')) }}"
+    aws_ec2_host : "{{ (lookup('env','AWS_EC2_HOST')) }}"
+    aws_db_user: "{{ (lookup('env','AWS_DB_USER')) }}"
+    aws_db_pw : "{{ (lookup('env','AWS_DB_PW')) }}"
+    aws_db_host : "{{ (lookup('env','AWS_DB_HOST')) }}"
+    aws_s3_bucket: "{{ (lookup('env','AWS_S3_BUCKET')) }}"
