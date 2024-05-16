@@ -25,3 +25,76 @@
     aws_db_pw : "{{ (lookup('env','AWS_DB_PW')) }}"
     aws_db_host : "{{ (lookup('env','AWS_DB_HOST')) }}"
     aws_s3_bucket: "{{ (lookup('env','AWS_S3_BUCKET')) }}"
+
+  tasks:
+    - name: Ensure required packages are installed
+      yum:
+        state: present
+        name:
+          - git
+          - make
+          - gcc-c++
+          - patch
+          - openssl-devel
+          - libyaml-devel
+          - libffi-devel
+          - libicu-devel
+          - libxml2
+          - libxslt
+          - libxml2-devel
+          - libxslt-devel
+          - zlib-devel
+          - readline-devel
+          - ImageMagick
+          - ImageMagick-devel
+
+    - name: Ensure rbenv is installed
+      git:
+        repo: 'https://github.com/rbenv/rbenv.git'
+        dest: "{{ rbenv_root }}"
+        update: no
+
+    - name: Ensure ruby-build is installed
+      git:
+        repo: 'https://github.com/rbenv/ruby-build.git'
+        dest: "{{ rbenv_root }}/plugins/ruby-build"
+        update: no
+
+    - name: Add rbenv to PATH and initialize in .bashrc
+      lineinfile:
+        path: /home/ec2-user/.bashrc
+        line: |
+          export RBENV_ROOT="{{ rbenv_root }}"
+          export PATH="{{ rbenv_root }}/bin:$PATH"
+          eval "$(rbenv init -)"
+        create: yes
+        state: present
+
+    - name: Apply rbenv settings to current shell
+      shell: |
+        export RBENV_ROOT="{{ rbenv_root }}"
+        export PATH="{{ rbenv_root }}/bin:$PATH"
+        eval "$(rbenv init -)"
+
+    - name: Install Ruby
+      shell: |
+        export RBENV_ROOT="{{ rbenv_root }}"
+        export PATH="{{ rbenv_root }}/bin:$PATH"
+        eval "$(rbenv init -)"
+        rbenv install -s {{ ruby_version }}
+        rbenv global {{ ruby_version }}
+      environment:
+        RBENV_ROOT: "{{ rbenv_root }}"
+      args:
+        executable: /bin/bash
+
+    - name: Install Bundler
+      shell: |
+        export RBENV_ROOT="{{ rbenv_root }}"
+        export PATH="{{ rbenv_root }}/bin:$PATH"
+        eval "$(rbenv init -)"
+        gem install bundler
+      environment:
+        RBENV_ROOT: "{{ rbenv_root }}"
+      args:
+        executable: /bin/bash
