@@ -2,6 +2,11 @@
 - hosts: web_server
   remote_user: ec2-user
   become: yes
+- name: Install rbenv
+  become: yes
+  package:
+    name: rbenv
+    state: present
 
   roles:
     - { role: 01_yum, tags: yum }
