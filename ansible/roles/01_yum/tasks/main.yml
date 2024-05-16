@@ -1,0 +1,30 @@
+- name: yum update
+  become: yes
+  yum: 
+    name: "*"
+    state: latest
+
+- name: install tools
+  become: yes
+  yum:
+    name:
+      - git
+      - gcc-c++
+      - patch
+      - bzip2
+      - openssl-devel
+      - libyaml-devel
+      - libffi-devel
+      - readline-devel
+      - zlib-devel
+      - gdbm-devel
+      - ncurses-devel
+      - make
+      - curl
+      - ImageMagick-devel
+      - libcurl-devel
+      - libicu-devel
+      - libxml2-devel
+      - libxslt-devel
+    state: present
+    
