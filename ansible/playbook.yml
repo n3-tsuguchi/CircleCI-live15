@@ -15,6 +15,8 @@
     - { role: 09_nginx, tags: nginx }
 
   vars:
+    rbenv_root: "/usr/local/rbenv"
+    ruby_version: "3.1.2"
     ansible_become_method: sudo
     sample_app_dir: /var/www/raisetech-live8-sample-app
     aws_alb_host : "{{ (lookup('env','AWS_ALB_HOST')) }}"
