@@ -1,4 +1,5 @@
 ---
+# rbenvのインストールと設定
 - name: rbenvのインストール確認
   shell: bash -lc "rbenv --version"
   register: check_rbenv_installed
@@ -8,19 +9,19 @@
 - name: rbenvのインストール
   git:
     repo: https://github.com/sstephenson/rbenv.git
-    dest: /home/circleci/.rbenv
+    dest: /home/ec2-user/.rbenv
   when: check_rbenv_installed.failed
 
 - name: PATHにrbenvを追加
   lineinfile:
-    path: /home/circleci/.bash_profile
+    path: /home/ec2-user/.bash_profile
     line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
     create: yes
   when: check_rbenv_installed.failed
 
 - name: rbenv initの評価
   lineinfile:
-    path: /home/circleci/.bash_profile
+    path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
     create: yes
   when: check_rbenv_installed.failed
@@ -29,26 +30,38 @@
   shell: bash -lc "source ~/.bash_profile"
   when: check_rbenv_installed.failed
 
+- name: rbenvとruby-buildのパスを設定
+  shell: |
+    echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> /home/ec2-user/.bash_profile
+    echo 'eval "$(rbenv init -)"' >> /home/ec2-user/.bash_profile
+  when: check_rbenv_installed.failed
+
+- name: 環境変数をロードするために新しいシェルを開始
+  shell: bash -lc "exec $SHELL"
+  when: check_rbenv_installed.failed
+
+# rubyのインストール
 - name: ruby-buildのインストール
   git:
     repo: https://github.com/sstephenson/ruby-build.git
-    dest: /home/circleci/.rbenv/plugins/ruby-build
+    dest: /home/ec2-user/.rbenv/plugins/ruby-build
   when: check_rbenv_installed.failed
 
 - name: Rubyのインストール
-  shell: bash -lc "RUBY_CFLAGS='-O3' rbenv install --skip-existing {{ ruby_version }}"
+  shell: bash -lc "rbenv install {{ ruby_version }}"
   environment:
-    PATH: "/home/circleci/.rbenv/bin:/home/circleci/.rbenv/plugins/ruby-build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
 
 - name: rbenvの再ハッシュ
   shell: bash -lc "rbenv rehash"
   environment:
-    PATH: "/home/circleci/.rbenv/bin:/home/circleci/.rbenv/plugins/ruby-build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
 
 - name: デフォルトのRubyバージョンを設定
   shell: bash -lc "rbenv global {{ ruby_version }}"
   environment:
-    PATH: "/home/circleci/.rbenv/bin:/home/circleci/.rbenv/plugins/ruby-build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
+  
