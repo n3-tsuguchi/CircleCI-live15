@@ -1,13 +1,21 @@
 ---
-- name: check bundler install
-  shell: /home/ec2-user/.rbenv/shims/bundler --version
+- name: bundlerのインストール確認
+  shell: bash -lc "bundler --version"
   register: check_bundler_installed
   changed_when: no
   ignore_errors: yes
 
-- name: install bundler
+- name: bundlerのインストール
   gem: 
     name: bundler
     version: "{{ bundler_version }}"
     executable: /home/ec2-user/.rbenv/shims/gem
+  when: check_bundler_installed.failed
+  environment:
+    PATH: "/home/ec2-user/.rbenv/shims:/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
+
+- name: rbenvの再ハッシュ (bundler)
+  shell: bash -lc "rbenv rehash"
+  environment:
+    PATH: "/home/ec2-user/.rbenv/shims:/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_bundler_installed.failed
