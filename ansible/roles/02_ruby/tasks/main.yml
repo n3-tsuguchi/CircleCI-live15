@@ -54,3 +54,4 @@
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
+  
