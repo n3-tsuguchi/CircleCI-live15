@@ -30,10 +30,6 @@
   shell: bash -lc "source ~/.bash_profile"
   when: check_rbenv_installed.failed
 
-- name: 環境変数をロードするために新しいシェルを開始
-  shell: bash -lc "exec $SHELL"
-  when: check_rbenv_installed.failed
-
 # ruby------------------------------------------------------------
 - name: ruby-buildのインストール
   git:
