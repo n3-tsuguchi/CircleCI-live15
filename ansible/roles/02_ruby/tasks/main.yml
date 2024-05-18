@@ -40,18 +40,17 @@
 - name: Rubyのインストール
   shell: bash -lc "rbenv install {{ ruby_version }}"
   environment:
-    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   when: check_rbenv_installed.failed
 
 - name: rbenvの再ハッシュ
   shell: bash -lc "rbenv rehash"
   environment:
-    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   when: check_rbenv_installed.failed
 
 - name: デフォルトのRubyバージョンを設定
   shell: bash -lc "rbenv global {{ ruby_version }}"
   environment:
-    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   when: check_rbenv_installed.failed
-  
