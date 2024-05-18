@@ -30,14 +30,8 @@
   shell: bash -lc "source ~/.bash_profile"
   when: check_rbenv_installed.failed
 
-- name: rbenvとruby-buildのパスを設定
-  shell: |
-    echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> /home/ec2-user/.bash_profile
-    echo 'eval "$(rbenv init -)"' >> /home/ec2-user/.bash_profile
-  when: check_rbenv_installed.failed
-
 - name: 環境変数をロードするために新しいシェルを開始
-  shell: bash -lc "exec $SHELL"
+  shell: exec $SHELL
   when: check_rbenv_installed.failed
 
 # rubyのインストール
@@ -64,4 +58,3 @@
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
-  
