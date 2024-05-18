@@ -43,7 +43,7 @@
 
 - name: Rubyのインストール
   shell: bash -lc "rbenv install {{ ruby_version }}"
-  when: ruby_exists is failed
+  
 
 - name: rbenvの再ハッシュ
   shell: bash -lc "rbenv rehash"
