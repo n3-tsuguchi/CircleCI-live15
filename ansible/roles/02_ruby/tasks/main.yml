@@ -1,16 +1,16 @@
 ---
 # rbenv------------------------------------------------------------
-- name: rbenvのインストール確認
-  shell: bash -lc "rbenv --version"
-  register: check_rbenv_installed
-  changed_when: no
-  ignore_errors: yes
-
 - name: rbenvのインストール
   git:
     repo: https://github.com/sstephenson/rbenv.git
     dest: /home/ec2-user/.rbenv
   when: check_rbenv_installed.failed
+
+- name: rbenvのインストール確認
+  shell: bash -lc "rbenv --version"
+  register: check_rbenv_installed
+  changed_when: no
+  ignore_errors: yes
 
 - name: PATHにrbenvを追加
   lineinfile:
