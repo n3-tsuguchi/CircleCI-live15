@@ -1,50 +1,56 @@
 ---
 # rbenv------------------------------------------------------------
-- name: check rbenv install
+- name: rbenvのインストール確認
   shell: bash -lc "rbenv --version"
   register: check_rbenv_installed
   changed_when: no
   ignore_errors: yes
 
-- name: install rbenv
+- name: rbenvのインストール
   git:
     repo: https://github.com/sstephenson/rbenv.git
     dest: /home/ec2-user/.rbenv
   when: check_rbenv_installed.failed
 
-- name: Add rbenv to PATH
+- name: PATHにrbenvを追加
   lineinfile:
     path: /home/ec2-user/.bash_profile
     line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
     create: yes
   when: check_rbenv_installed.failed
 
-- name: eval rbenv init
+- name: rbenv initの評価
   lineinfile:
     path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
     create: yes
   when: check_rbenv_installed.failed
 
-- name: load .bash_profile
+- name: .bash_profileの読み込み
   shell: bash -lc "source ~/.bash_profile"
   when: check_rbenv_installed.failed
 
+- name: シェルを再読み込み
+  shell: exec bash -lc "exit"
+  when: check_rbenv_installed.failed
+
 # ruby------------------------------------------------------------
-- name: install ruby-build
+- name: ruby-buildのインストール
   git:
     repo: https://github.com/sstephenson/ruby-build.git
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
   when: check_rbenv_installed.failed
 
-- name: install ruby
+- name: Rubyのインストール
   shell: bash -lc "rbenv install {{ ruby_version }}"
+  environment:
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
 
-- name: rehash rbenv
+- name: rbenvの再ハッシュ
   shell: bash -lc "rbenv rehash"
   when: check_rbenv_installed.failed
 
-- name: set default ruby version
+- name: デフォルトのRubyバージョンを設定
   shell: bash -lc "rbenv global {{ ruby_version }}"
   when: check_rbenv_installed.failed
