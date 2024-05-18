@@ -43,9 +43,7 @@
 
 - name: Rubyのインストール
   shell: bash -lc "rbenv install {{ ruby_version }}"
-  environment:
-    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
-  when: check_rbenv_installed.failed
+  when: ruby_exists is failed
 
 - name: rbenvの再ハッシュ
   shell: bash -lc "rbenv rehash"
