@@ -42,7 +42,7 @@
   when: check_rbenv_installed.failed
 
 - name: Rubyのインストール
-  shell: bash -lc "rbenv install {{ ruby_version }}"
+  shell: rbenv install {{ ruby_version }}
   
 
 - name: rbenvの再ハッシュ
