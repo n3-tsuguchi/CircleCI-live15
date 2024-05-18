@@ -30,8 +30,8 @@
   shell: bash -lc "source ~/.bash_profile"
   when: check_rbenv_installed.failed
 
-- name: シェルを再読み込み
-  shell: exec bash -lc "exit"
+- name: 環境変数をロードするために新しいシェルを開始
+  shell: bash -lc "exec $SHELL"
   when: check_rbenv_installed.failed
 
 # ruby------------------------------------------------------------
@@ -42,13 +42,19 @@
   when: check_rbenv_installed.failed
 
 - name: Rubyのインストール
-  shell: rbenv install {{ ruby_version }}
-  
+  shell: bash -lc "rbenv install {{ ruby_version }}"
+  environment:
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
+  when: check_rbenv_installed.failed
 
 - name: rbenvの再ハッシュ
   shell: bash -lc "rbenv rehash"
+  environment:
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
 
 - name: デフォルトのRubyバージョンを設定
   shell: bash -lc "rbenv global {{ ruby_version }}"
+  environment:
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
