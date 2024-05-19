@@ -42,6 +42,8 @@
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
+  async: 1800  # タイムアウトを30分に延長
+  poll: 10
 
 - name: rbenvの再ハッシュ
   shell: bash -lc "rbenv rehash"
@@ -54,4 +56,3 @@
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: check_rbenv_installed.failed
-
