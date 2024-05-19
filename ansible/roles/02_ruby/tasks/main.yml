@@ -12,17 +12,21 @@
   when: rbenv_exists is failed
 
 - name: Add rbenv to PATH
-  lineinfile: # ファイルないの特定の行に変更を加えるためのモジュール
+  lineinfile: # ファイル内の特定の行に変更を加えるためのモジュール
     path: /home/ec2-user/.bash_profile
     line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
+    create: yes
+    state: present
 
 - name: Enable shims and autocompletion for rbenv
   lineinfile:
     path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
+    create: yes
+    state: present
 
 - name: Reload bash profile
-  shell: source /home/ec2-user/.bash_profile
+  shell: bash -lc "source /home/ec2-user/.bash_profile"
 
 - name: Install ruby-build
   git:
@@ -45,7 +49,5 @@
 - name: Install bundler and so on
   shell: bash -lc "gem install {{ item }}"
   with_items:
-    - rbenv-rehash
-    - bundler -v '{{ bundler_version }}'
-    - rails -v '{{ rails_version }}'
-    
+    - "bundler -v '{{ bundler_version }}'"
+    - "rails -v '{{ rails_version }}'"
