@@ -1,56 +1,51 @@
 ---
-# rbenvのインストールと設定
-- name: rbenvのインストール確認
+- name: check rbenv install # rubyのバージョン管理ツールであるrbenvがインストールされているか確認
   shell: bash -lc "rbenv --version"
-  register: check_rbenv_installed
+  register: rbenv_exists
   changed_when: no
-  ignore_errors: yes
+  ignore_errors: yes # タスクがエラーになった場合でも、スクリプトの実行を中断せずに続行させる
 
-- name: rbenvのインストール
+- name: Install rbenv
   git:
     repo: https://github.com/sstephenson/rbenv.git
     dest: /home/ec2-user/.rbenv
-  when: check_rbenv_installed.failed
+  when: rbenv_exists is failed
 
-- name: PATHにrbenvを追加
-  lineinfile:
+- name: Add rbenv to PATH
+  lineinfile: # ファイルないの特定の行に変更を加えるためのモジュール
     path: /home/ec2-user/.bash_profile
     line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
-    create: yes
-  when: check_rbenv_installed.failed
 
-- name: rbenv initの評価
+- name: Enable shims and autocompletion for rbenv
   lineinfile:
     path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
-    create: yes
-  when: check_rbenv_installed.failed
 
-- name: .bash_profileの読み込み
-  shell: bash -lc "source ~/.bash_profile"
-  when: check_rbenv_installed.failed
+- name: Reload bash profile
+  shell: source /home/ec2-user/.bash_profile
 
-# rubyのインストール
-- name: ruby-buildのインストール
+- name: Install ruby-build
   git:
     repo: https://github.com/sstephenson/ruby-build.git
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
-  when: check_rbenv_installed.failed
 
-- name: Rubyのインストール
+- name: Check ruby installed
+  shell: bash -lc "rbenv versions | grep {{ ruby_version }}"
+  register: ruby_check_install
+  changed_when: no
+  ignore_errors: yes
+
+- name: Install Ruby
   shell: bash -lc "rbenv install {{ ruby_version }}"
-  environment:
-    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
-  when: check_rbenv_installed.failed
+  when: ruby_check_install is failed
 
-- name: rbenvの再ハッシュ
-  shell: bash -lc "rbenv rehash"
-  environment:
-    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
-  when: check_rbenv_installed.failed
+- name: Set default Ruby version
+  shell: bash -lc "rbenv global {{ ruby_version }} && rbenv rehash"
 
-- name: デフォルトのRubyバージョンを設定
-  shell: bash -lc "rbenv global {{ ruby_version }}"
-  environment:
-    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
-  when: check_rbenv_installed.failed
+- name: Install bundler and so on
+  shell: bash -lc "gem install {{ item }}"
+  with_items:
+    - rbenv-rehash
+    - bundler -v '{{ bundler_version }}'
+    - rails -v '{{ rails_version }}'
+    
