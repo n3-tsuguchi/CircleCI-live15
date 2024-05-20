@@ -1,4 +1,12 @@
 ---
+- name: Ensure /home/ec2-user directory permissions
+  file:
+    path: /home/ec2-user
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+
 - name: check rbenv install
   shell: bash -lc "rbenv --version"
   register: rbenv_exists
