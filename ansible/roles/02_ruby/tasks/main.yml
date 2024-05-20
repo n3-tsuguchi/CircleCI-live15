@@ -71,6 +71,8 @@
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: ruby_check_install is failed
+  async: 3600
+  poll: 60
 
 - name: Debugging Ruby installation
   debug:
