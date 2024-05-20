@@ -33,6 +33,15 @@
     repo: https://github.com/sstephenson/ruby-build.git
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
 
+- name: Check if rbenv is in PATH
+  shell: which rbenv
+  register: rbenv_path_check
+  changed_when: no
+
+- name: Debug rbenv PATH
+  debug:
+    msg: "rbenv path: {{ rbenv_path_check.stdout }}"
+
 - name: Check ruby installed
   shell: bash -lc "rbenv versions | grep {{ ruby_version }}"
   register: ruby_check_install
@@ -44,8 +53,6 @@
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: ruby_check_install is failed
-  async: 3600  # タイムアウトを60分に設定
-  poll: 30     # 30秒ごとにチェック
 
 - name: Debugging Ruby installation
   debug:
