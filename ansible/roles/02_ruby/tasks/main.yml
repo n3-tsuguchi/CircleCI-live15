@@ -40,19 +40,19 @@
 - name: Reload bash profile
   shell: bash -lc "source /home/ec2-user/.bash_profile"
 
-- name: Install ruby-build
-  git:
-    repo: https://github.com/sstephenson/ruby-build.git
-    dest: /home/ec2-user/.rbenv/plugins/ruby-build
-
 - name: Check if rbenv is in PATH
-  shell: which rbenv
+  shell: bash -lc "which rbenv"
   register: rbenv_path_check
   changed_when: no
 
 - name: Debug rbenv PATH
   debug:
     msg: "rbenv path: {{ rbenv_path_check.stdout }}"
+
+- name: Install ruby-build
+  git:
+    repo: https://github.com/sstephenson/ruby-build.git
+    dest: /home/ec2-user/.rbenv/plugins/ruby-build
 
 - name: Check ruby installed
   shell: bash -lc "rbenv versions | grep {{ ruby_version }}"
