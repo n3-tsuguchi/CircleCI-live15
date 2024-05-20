@@ -1,12 +1,4 @@
 ---
-- name: Ensure /home/ec2-user directory permissions
-  file:
-    path: /home/ec2-user
-    state: directory
-    owner: ec2-user
-    group: ec2-user
-    mode: '0755'
-
 - name: check rbenv install
   shell: bash -lc "rbenv --version"
   register: rbenv_exists
@@ -75,14 +67,14 @@
 - name: Install Ruby
   become: true
   become_user: ec2-user
-  shell: bash -lc "rbenv install {{ ruby_version }} >> /tmp/ruby_install.log 2>&1"
+  shell: bash -lc "rbenv install {{ ruby_version }} >> /home/ec2-user/ruby_install.log 2>&1"
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
   when: ruby_check_install is failed
 
 - name: Debugging Ruby installation
   debug:
-    msg: "Ruby installation log: {{ lookup('file', '/tmp/ruby_install.log') }}"
+    msg: "Ruby installation log: {{ lookup('file', '/home/ec2-user/ruby_install.log') }}"
   when: ruby_check_install is failed
 
 - name: Set default Ruby version
