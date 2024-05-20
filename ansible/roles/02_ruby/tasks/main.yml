@@ -1,76 +1,59 @@
 ---
-- name: Install rbenv and Ruby
-  hosts: all
-  become: yes
-  tasks:
-    - name: Ensure necessary packages are installed
-      yum:
-        name:
-          - git
-          - gcc
-          - make
-          - bzip2
-          - openssl-devel
-          - libffi-devel
-          - readline-devel
-          - zlib-devel
-        state: present
+- name: check rbenv install
+  shell: bash -lc "rbenv --version"
+  register: rbenv_exists
+  changed_when: no
+  ignore_errors: yes
 
-    - name: check rbenv install
-      shell: bash -lc "rbenv --version"
-      register: rbenv_exists
-      changed_when: no
-      ignore_errors: yes
+- name: Install rbenv
+  git:
+    repo: https://github.com/sstephenson/rbenv.git
+    dest: /home/ec2-user/.rbenv
+  when: rbenv_exists is failed
 
-    - name: Install rbenv
-      git:
-        repo: https://github.com/sstephenson/rbenv.git
-        dest: /home/ec2-user/.rbenv
-      when: rbenv_exists is failed
+- name: Add rbenv to PATH
+  lineinfile:
+    path: /home/ec2-user/.bash_profile
+    line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
+    create: yes
+    state: present
 
-    - name: Add rbenv to PATH
-      lineinfile:
-        path: /home/ec2-user/.bash_profile
-        line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
-        create: yes
-        state: present
+- name: Enable shims and autocompletion for rbenv
+  lineinfile:
+    path: /home/ec2-user/.bash_profile
+    line: 'eval "$(rbenv init -)"'
+    create: yes
+    state: present
 
-    - name: Enable shims and autocompletion for rbenv
-      lineinfile:
-        path: /home/ec2-user/.bash_profile
-        line: 'eval "$(rbenv init -)"'
-        create: yes
-        state: present
+- name: Reload bash profile
+  shell: bash -lc "source /home/ec2-user/.bash_profile"
 
-    - name: Reload bash profile
-      shell: bash -lc "source /home/ec2-user/.bash_profile"
+- name: Install ruby-build
+  git:
+    repo: https://github.com/sstephenson/ruby-build.git
+    dest: /home/ec2-user/.rbenv/plugins/ruby-build
 
-    - name: Install ruby-build
-      git:
-        repo: https://github.com/sstephenson/ruby-build.git
-        dest: /home/ec2-user/.rbenv/plugins/ruby-build
+- name: Check ruby installed
+  shell: bash -lc "rbenv versions | grep {{ ruby_version }}"
+  register: ruby_check_install
+  changed_when: no
+  ignore_errors: yes
 
-    - name: Check ruby installed
-      shell: bash -lc "rbenv versions | grep {{ ruby_version }}"
-      register: ruby_check_install
-      changed_when: no
-      ignore_errors: yes
+- name: Install Ruby
+  shell: bash -lc "rbenv install {{ ruby_version }}"
+  environment:
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
+  when: ruby_check_install is failed
 
-    - name: Install Ruby
-      shell: bash -lc "rbenv install {{ ruby_version }}"
-      environment:
-        PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
-      when: ruby_check_install is failed
+- name: Set default Ruby version
+  shell: bash -lc "rbenv global {{ ruby_version }} && rbenv rehash"
+  environment:
+    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
 
-    - name: Set default Ruby version
-      shell: bash -lc "rbenv global {{ ruby_version }} && rbenv rehash"
-      environment:
-        PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
-
-    - name: Install bundler and other gems
-      shell: bash -lc "gem install {{ item }}"
-      with_items:
-        - "bundler -v '{{ bundler_version }}'"
-        - "rails -v '{{ rails_version }}'"
-      environment:
-        PATH: "/home/ec2-user/.rbenv/shims:/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
+- name: Install bundler and other gems
+  shell: bash -lc "gem install {{ item }}"
+  with_items:
+    - "bundler -v '{{ bundler_version }}'"
+    - "rails -v '{{ rails_version }}'"
+  environment:
+    PATH: "/home/ec2-user/.rbenv/shims:/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
