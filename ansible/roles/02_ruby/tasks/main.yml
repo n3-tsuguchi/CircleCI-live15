@@ -40,9 +40,16 @@
   ignore_errors: yes
 
 - name: Install Ruby
-  shell: bash -lc "rbenv install {{ ruby_version }}"
+  shell: bash -lc "rbenv install {{ ruby_version }} >> /tmp/ruby_install.log 2>&1"
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
+  when: ruby_check_install is failed
+  async: 3600  # タイムアウトを60分に設定
+  poll: 30     # 30秒ごとにチェック
+
+- name: Debugging Ruby installation
+  debug:
+    msg: "Ruby installation log: {{ lookup('file', '/tmp/ruby_install.log') }}"
   when: ruby_check_install is failed
 
 - name: Set default Ruby version
