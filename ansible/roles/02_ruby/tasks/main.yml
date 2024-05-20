@@ -37,10 +37,14 @@
     create: yes
     state: present
 
-- name: Reload bash profile
+- name: Reload bash profile for ec2-user
+  become: true
+  become_user: ec2-user
   shell: bash -lc "source /home/ec2-user/.bash_profile"
 
 - name: Check if rbenv is in PATH
+  become: true
+  become_user: ec2-user
   shell: bash -lc "which rbenv"
   register: rbenv_path_check
   changed_when: no
@@ -61,6 +65,8 @@
   ignore_errors: yes
 
 - name: Install Ruby
+  become: true
+  become_user: ec2-user
   shell: bash -lc "rbenv install {{ ruby_version }} >> /tmp/ruby_install.log 2>&1"
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
@@ -72,11 +78,15 @@
   when: ruby_check_install is failed
 
 - name: Set default Ruby version
+  become: true
+  become_user: ec2-user
   shell: bash -lc "rbenv global {{ ruby_version }} && rbenv rehash"
   environment:
     PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
 
 - name: Install bundler and other gems
+  become: true
+  become_user: ec2-user
   shell: bash -lc "gem install {{ item }}"
   with_items:
     - "bundler -v '{{ bundler_version }}'"
