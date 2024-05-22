@@ -41,7 +41,7 @@
 
 - name: Set default Ruby version
   shell: bash -lc "rbenv global {{ ruby_version }} && rbenv rehash"
----
+  
 - name: check rbenv exists
   shell: bash -lc "rbenv --version"
   register: rbenv_exists
