@@ -19,15 +19,24 @@
     create: yes
   when: check_rbenv_installed.failed
 
-- name: Eval rbenv init
+- name: Evaluate rbenv init
   lineinfile: 
     path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
     create: yes
   when: check_rbenv_installed.failed
 
-- name: Load .bash_profile
-  shell: bash -lc "source ~/.bash_profile"
+- name: Reload profile
+  shell: source /home/ec2-user/.bash_profile
+  args:
+    executable: /bin/bash
+  when: check_rbenv_installed.failed
+
+- name: Verify rbenv installation
+  shell: bash -lc "type rbenv"
+  register: rbenv_check
+  changed_when: no
+  failed_when: rbenv_check.rc != 0
   when: check_rbenv_installed.failed
 
 # ruby------------------------------------------------------------
@@ -35,16 +44,16 @@
   git:
     repo: https://github.com/sstephenson/ruby-build.git
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
-  when: check_rbenv_installed.failed
+  when: rbenv_check.rc == 0
 
 - name: Install Ruby
   shell: bash -lc "rbenv install {{ ruby_version }}"
-  when: check_rbenv_installed.failed
+  when: rbenv_check.rc == 0
 
 - name: Rehash rbenv
   shell: bash -lc "rbenv rehash"
-  when: check_rbenv_installed.failed
+  when: rbenv_check.rc == 0
 
 - name: Set default Ruby version
   shell: bash -lc "rbenv global {{ ruby_version }}"
-  when: check_rbenv_installed.failed
+  when: rbenv_check.rc == 0
