@@ -1,105 +1,49 @@
 ---
+# rbenv------------------------------------------------------------
 - name: check rbenv install
   shell: bash -lc "rbenv --version"
-  register: rbenv_exists
+  register: check_rbenv_installed
   changed_when: no
   ignore_errors: yes
 
-- name: Install rbenv
+- name: install rbenv
   git:
     repo: https://github.com/sstephenson/rbenv.git
     dest: /home/ec2-user/.rbenv
-  when: rbenv_exists is failed
-
-- name: Ensure rbenv directories exist
-  file:
-    path: "/home/ec2-user/.rbenv/{{ item }}"
-    state: directory
-    owner: ec2-user
-    group: ec2-user
-    mode: '0755'
-  with_items:
-    - shims
-    - versions
-    - plugins/ruby-build
+  when: check_rbenv_installed.failed
 
 - name: Add rbenv to PATH
-  lineinfile:
+  lineinfile: 
     path: /home/ec2-user/.bash_profile
     line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
-    create: yes
-    state: present
+  when: check_rbenv_installed.failed
 
-- name: Enable shims and autocompletion for rbenv
-  lineinfile:
+- name: eval rbenv init
+  lineinfile: 
     path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
-    create: yes
-    state: present
+  when: check_rbenv_installed.failed
 
-- name: Reload bash profile for ec2-user
-  become: true
-  become_user: ec2-user
-  shell: bash -lc "source /home/ec2-user/.bash_profile"
+- name: load .bash_profile
+  shell: bash -lc "source ~/.bash_profile"
+  when: check_rbenv_installed.failed
 
-- name: Check if rbenv is in PATH
-  become: true
-  become_user: ec2-user
-  shell: bash -lc "which rbenv"
-  register: rbenv_path_check
-  changed_when: no
-
-- name: Debug rbenv PATH
-  debug:
-    msg: "rbenv path: {{ rbenv_path_check.stdout }}"
-
-- name: Install ruby-build
+# ruby------------------------------------------------------------
+- name: install ruby-build
   git:
     repo: https://github.com/sstephenson/ruby-build.git
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
+  when: check_rbenv_installed.failed
 
-- name: Check ruby installed
-  shell: bash -lc "rbenv versions | grep {{ ruby_version }}"
-  register: ruby_check_install
-  changed_when: no
-  ignore_errors: yes
+- name: install ruby
+  shell: bash -lc "rbenv install {{ ruby_version }}"
+  when: check_rbenv_installed.failed
 
-- name: Ensure log directory exists
-  file:
-    path: /home/ec2-user/logs
-    state: directory
-    owner: ec2-user
-    group: ec2-user
-    mode: '0755'
+- name: rehash rbenv
+  shell: bash -lc "rbenv rehash"
+  when: check_rbenv_installed.failed
 
-- name: Install Ruby
-  become: true
-  become_user: ec2-user
-  shell: bash -lc "rbenv install {{ ruby_version }} >> /home/ec2-user/logs/ruby_install.log 2>&1"
-  environment:
-    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
-  when: ruby_check_install is failed
-  async: 3600
-  poll: 60
-
-- name: Debugging Ruby installation
-  debug:
-    msg: "Ruby installation log: {{ lookup('file', '/home/ec2-user/logs/ruby_install.log') }}"
-  when: ruby_check_install is failed
-
-- name: Set default Ruby version
-  become: true
-  become_user: ec2-user
-  shell: bash -lc "rbenv global {{ ruby_version }} && rbenv rehash"
-  environment:
-    PATH: "/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
-
-- name: Install bundler and other gems
-  become: true
-  become_user: ec2-user
-  shell: bash -lc "gem install {{ item }}"
-  with_items:
-    - "bundler -v '{{ bundler_version }}'"
-    - "rails -v '{{ rails_version }}'"
-  environment:
-    PATH: "/home/ec2-user/.rbenv/shims:/home/ec2-user/.rbenv/bin:/home/ec2-user/.rbenv/plugins/ruby-build/bin:{{ ansible_env.PATH }}"
+- name: set default ruby version
+  shell: bash -lc "rbenv global {{ ruby_version }}"
+  when: check_rbenv_installed.failed
+  
