@@ -1,57 +1,49 @@
 ---
 # rbenv------------------------------------------------------------
-- name: Check rbenv installation
+- name: check rbenv install
   shell: bash -lc "rbenv --version"
   register: check_rbenv_installed
   changed_when: no
   ignore_errors: yes
 
-- name: Install rbenv
+- name: install rbenv
   git:
     repo: https://github.com/sstephenson/rbenv.git
     dest: /home/ec2-user/.rbenv
   when: check_rbenv_installed.failed
 
 - name: Add rbenv to PATH
-  lineinfile:
+  lineinfile: 
     path: /home/ec2-user/.bash_profile
     line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
-    create: yes
   when: check_rbenv_installed.failed
 
-- name: Evaluate rbenv init
-  lineinfile:
+- name: eval rbenv init
+  lineinfile: 
     path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
-    create: yes
   when: check_rbenv_installed.failed
 
-- name: Reload profile
-  shell: bash -lc "source /home/ec2-user/.bash_profile"
-  when: check_rbenv_installed.failed
-
-- name: Verify rbenv installation
-  shell: bash -lc "type rbenv"
-  register: rbenv_check
-  changed_when: no
-  failed_when: rbenv_check.rc != 0
+- name: load .bash_profile
+  shell: bash -lc "source ~/.bash_profile"
   when: check_rbenv_installed.failed
 
 # ruby------------------------------------------------------------
-- name: Install ruby-build
+- name: install ruby-build
   git:
     repo: https://github.com/sstephenson/ruby-build.git
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
-  when: rbenv_check.rc == 0
+  when: check_rbenv_installed.failed
 
-- name: Install Ruby
-  shell: bash -lc "export PATH=\"$HOME/.rbenv/bin:$PATH\" && eval \"$(rbenv init -)\" && rbenv install {{ ruby_version }}"
-  when: rbenv_check.rc == 0
+- name: install ruby
+  shell: bash -lc "rbenv install {{ ruby_version }}"
+  when: check_rbenv_installed.failed
 
-- name: Rehash rbenv
-  shell: bash -lc "export PATH=\"$HOME/.rbenv/bin:$PATH\" && eval \"$(rbenv init -)\" && rbenv rehash"
-  when: rbenv_check.rc == 0
+- name: rehash rbenv
+  shell: bash -lc "rbenv rehash"
+  when: check_rbenv_installed.failed
 
-- name: Set default Ruby version
-  shell: bash -lc "export PATH=\"$HOME/.rbenv/bin:$PATH\" && eval \"$(rbenv init -)\" && rbenv global {{ ruby_version }}"
-  when: rbenv_check.rc == 0
+- name: set default ruby version
+  shell: bash -lc "rbenv global {{ ruby_version }}"
+  when: check_rbenv_installed.failed
+  
