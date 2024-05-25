@@ -6,11 +6,17 @@
   changed_when: no
   ignore_errors: yes
 
-- name: install rbenv
-  git:
-    repo: https://github.com/sstephenson/rbenv.git
-    dest: /home/ec2-user/.rbenv
-  when: check_rbenv_installed.failed
+- name: Install rbenv
+      become: yes
+      package:
+        name: rbenv
+        state: present
+
+    - name: Configure rbenv
+      become: yes
+      lineinfile:
+        path: /root/.bash_profile
+        line: 'eval "$(rbenv init -)"'
 
 - name: Add rbenv to PATH
   lineinfile: 
@@ -35,9 +41,9 @@
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
   when: check_rbenv_installed.failed
 
-- name: install ruby
-  shell: bash -lc "rbenv install {{ ruby_version }}"
-  when: check_rbenv_installed.failed
+- name: Install Ruby
+      become: yes
+      shell: rbenv install 3.1.2
 
 - name: rehash rbenv
   shell: bash -lc "rbenv rehash"
