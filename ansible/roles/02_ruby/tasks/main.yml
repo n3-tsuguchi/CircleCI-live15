@@ -16,7 +16,6 @@
     executable: /bin/bash
 
 - name: Install a specific Ruby version
-  become: true
   shell: |
     source ~/.bash_profile
     rbenv install 3.1.2
