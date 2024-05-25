@@ -6,21 +6,11 @@
   changed_when: no
   ignore_errors: yes
 
-- name: Install rbenv and plugins
-  shell: |
-    git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-    echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
-    echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
-    git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
-  args:
-    executable: /bin/bash
-
-- name: Install a specific Ruby version
-  shell: |
-    source ~/.bash_profile
-    rbenv install 3.1.2
-  args:
-    executable: /bin/bash
+- name: install rbenv
+  git:
+    repo: https://github.com/sstephenson/rbenv.git
+    dest: /home/ec2-user/.rbenv
+  when: check_rbenv_installed.failed
 
 - name: Add rbenv to PATH
   lineinfile: 
