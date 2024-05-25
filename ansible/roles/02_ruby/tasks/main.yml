@@ -42,8 +42,8 @@
   when: check_rbenv_installed.failed
 
 - name: Install Ruby
-      become: yes
-      shell: rbenv install 3.1.2
+  become: yes
+  shell: rbenv install 3.1.2
 
 - name: rehash rbenv
   shell: bash -lc "rbenv rehash"
