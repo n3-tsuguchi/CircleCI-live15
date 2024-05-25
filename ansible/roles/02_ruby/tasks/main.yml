@@ -1,65 +1,49 @@
 ---
 # rbenv------------------------------------------------------------
 - name: check rbenv install
-  ansible.builtin.shell: bash -lc "rbenv --version"
+  shell: bash -lc "rbenv --version"
   register: check_rbenv_installed
   changed_when: no
   ignore_errors: yes
 
-- name: Install dependencies for rbenv
-  ansible.builtin.package:
-    name:
-      - git
-      - curl
-      - build-essential
-      - libssl-dev
-      - libreadline-dev
-      - zlib1g-dev
-    state: present
-
-- name: Install rbenv
-  ansible.builtin.git:
-    repo: 'https://github.com/rbenv/rbenv.git'
-    dest: '/home/ec2-user/.rbenv'
-    version: 'master'
-  when: check_rbenv_installed.failed
-
-- name: Install ruby-build as an rbenv plugin
-  ansible.builtin.git:
-    repo: 'https://github.com/rbenv/ruby-build.git'
-    dest: '/home/ec2-user/.rbenv/plugins/ruby-build'
-    version: 'master'
-  when: check_rbenv_installed.failed
-
-- name: Configure rbenv
-  ansible.builtin.lineinfile:
-    path: /root/.bash_profile
-    line: 'eval "$(rbenv init -)"'
+- name: install rbenv
+  git:
+    repo: https://github.com/sstephenson/rbenv.git
+    dest: /home/ec2-user/.rbenv
   when: check_rbenv_installed.failed
 
 - name: Add rbenv to PATH
-  ansible.builtin.lineinfile:
+  lineinfile: 
     path: /home/ec2-user/.bash_profile
     line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
   when: check_rbenv_installed.failed
 
 - name: eval rbenv init
-  ansible.builtin.lineinfile:
+  lineinfile: 
     path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
   when: check_rbenv_installed.failed
 
 - name: load .bash_profile
-  ansible.builtin.shell: bash -lc "source ~/.bash_profile"
+  shell: bash -lc "source ~/.bash_profile"
   when: check_rbenv_installed.failed
 
-- name: Install Ruby
-  ansible.builtin.shell: bash -lc "rbenv install {{ ruby_version }}"
+# ruby------------------------------------------------------------
+- name: install ruby-build
+  git:
+    repo: https://github.com/sstephenson/ruby-build.git
+    dest: /home/ec2-user/.rbenv/plugins/ruby-build
+  when: check_rbenv_installed.failed
+
+- name: install ruby
+  shell: bash -lc "rbenv install {{ ruby_version }}"
+  when: check_rbenv_installed.failed
 
 - name: rehash rbenv
-  ansible.builtin.shell: bash -lc "rbenv rehash"
+  shell: bash -lc "rbenv rehash"
   when: check_rbenv_installed.failed
 
 - name: set default ruby version
-  ansible.builtin.shell: bash -lc "rbenv global {{ ruby_version }}"
+  shell: bash -lc "rbenv global {{ ruby_version }}"
   when: check_rbenv_installed.failed
+  
