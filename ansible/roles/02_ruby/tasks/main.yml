@@ -7,16 +7,16 @@
   ignore_errors: yes
 
 - name: Install rbenv
-      become: yes
-      package:
-        name: rbenv
-        state: present
+  become: yes
+  package:
+    name: rbenv
+    state: present
 
-    - name: Configure rbenv
-      become: yes
-      lineinfile:
-        path: /root/.bash_profile
-        line: 'eval "$(rbenv init -)"'
+- name: Configure rbenv
+  become: yes
+  lineinfile:
+    path: /root/.bash_profile
+    line: 'eval "$(rbenv init -)"'
 
 - name: Add rbenv to PATH
   lineinfile: 
