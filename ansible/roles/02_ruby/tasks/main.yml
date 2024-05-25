@@ -7,7 +7,6 @@
   ignore_errors: yes
 
 - name: Install rbenv and plugins
-  become: true
   shell: |
     git clone https://github.com/rbenv/rbenv.git ~/.rbenv
     echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
