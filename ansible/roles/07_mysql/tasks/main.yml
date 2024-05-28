@@ -1,47 +1,45 @@
 ---
-- name: Remove MariaDB
+- name: git clone app
   become: true
-  yum:
-    name: mariadb-server
-    state: absent
+  git: 
+    repo: https://github.com/yuta-ushijima/raisetech-live8-sample-app.git
+    dest: "{{ sample_app_dir }}"
+    force: yes
+  register: git_clone
 
-- name: Install MySQL repository
-  become_user: root
-  yum:
-    name: 'https://repo.mysql.com//mysql80-community-release-el7-7.noarch.rpm'
-    state: present
-  register: mysql_installed
-
-- name: Import GPG key 
-  become_user: root
-  ansible.builtin.rpm_key:
-    state: present
-    key: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
-  when: mysql_installed.changed
-
-- name: install mysql-community-client
-  become_user: root
-  yum:
-    name: mysql-community-client
-    state: present
-  when: mysql_installed.changed
-
-- name: Install mysql-community-devel
-  become_user: root
-  yum:
-    name: mysql-community-devel
-    state: present
-  when: mysql_installed.changed
-
-- name: bin/setup
-  shell: |
-    bash -lc "bin/setup"
+- name: bundle install
+  shell: bash -lc "bundle install"
   args: 
     chdir: "{{ sample_app_dir }}"
-  when: mysql_installed.changed
+  when: git_clone.changed
 
-- name: asset precompile
-  shell: |
-    bash -lc "rails assets:precompile"
-  args: 
+- name: change owner /var/www/raisetech-live8-sample-app
+  become: true
+  file:
+    path: "{{ sample_app_dir }}"
+    state: directory
+    owner: ec2-user
+    recurse: yes
+  when: git_clone.changed
+
+- name: Copy configuration files
+  become: true
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ sample_app_dir }}/config/{{ item.dest }}"
+  loop:
+    - { src: 'database.yml.j2', dest: 'database.yml' }
+    - { src: 'development.rb.j2', dest: 'environments/development.rb' }
+    - { src: 'storage.yml.j2', dest: 'storage.yml' }
+    - { src: 'unicorn.rb.j2', dest: 'unicorn.rb' }
+
+- name: Run application setup script
+  shell: bash -lc "bin/setup"
+  args:
     chdir: "{{ sample_app_dir }}"
+
+- name: Precompile application assets
+  shell: bash -lc "rails assets:precompile"
+  args:
+    chdir: "{{ sample_app_dir }}"
+    
