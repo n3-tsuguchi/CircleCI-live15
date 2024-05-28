@@ -32,6 +32,12 @@
     cmd: echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> $HOME/.bash_profile
     creates: $HOME/.bash_profile
 
+- name: Install rbenv
+      become: yes
+      package:
+        name: rbenv
+        state: present
+
 - name: Initialize rbenv
   become: true
   shell:
