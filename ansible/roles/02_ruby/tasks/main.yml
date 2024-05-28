@@ -1,55 +1,54 @@
 ---
-- name: check rbenv install
-  shell: bash -lc "/path/to/rbenv command -v rbenv"
-  register: rbenv_installed
-  changed_when: no
-  ignore_errors: yes
-
-
-- name: install rbenv
-  git:
-    repo: https://github.com/sstephenson/rbenv.git
-    dest: /home/ec2-user/.rbenv
-  when: rbenv_installed.rc != 0
-
-- name: PATH for rbenv
-  lineinfile:
-    path: /home/ec2-user/.bash_profile
-    line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
-    create: yes
-  when: rbenv_installed.rc != 0
-
-- name: eval rbenv init
-  lineinfile: 
-    path: /home/ec2-user/.bash_profile
-    line: 'eval "$(rbenv init -)"'
-  when: rbenv_installed is failed
-
-- name: reflect .bash_profile
-  shell: bash -lc "source ~/.bash_profile"
-  when: rbenv_installed is failed
-
-- name: install ruby-build
-  git:
-    repo: https://github.com/sstephenson/ruby-build.git
-    dest: /home/ec2-user/.rbenv/plugins/ruby-build
-  when: rbenv_installed is failed
-
-- name: check ruby install
-  shell: bash -lc "rbenv version | grep {{ ruby_version }}"
-  register: ruby_installed
-  changed_when: no
-  ignore_errors: yes
-
-- name: install ruby
-  shell: bash -lc "rbenv install {{ ruby_version }}"
-  when: ruby_installed is failed
-
-- name: set default ruby version rehash
-  shell: bash -lc "rbenv rehash"
-  when: ruby_installed is failed
-
-- name: set default ruby version
-  shell: bash -lc "rbenv global {{ ruby_version }}"
-  when: ruby_installed is failed
+- name: Install rbenv and Ruby
+  hosts: web_server
+  tasks:
+    - name: Install rbenv dependencies
+      become: true
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - git
+        - gcc
+        - make
+        - openssl-devel
+        - zlib-devel
+        - readline-devel
   
+    - name: Clone rbenv repository
+      become: true
+      git:
+        repo: https://github.com/rbenv/rbenv.git
+        dest: /usr/local/rbenv
+        update: no
+      register: rbenv_clone_result
+  
+    - name: Set RBENV_ROOT environment variable
+      become: true
+      shell:
+        cmd: echo 'export RBENV_ROOT="/usr/local/rbenv"' >> $HOME/.bash_profile
+        creates: $HOME/.bash_profile
+  
+    - name: Add rbenv to the PATH
+      become: true
+      shell:
+        cmd: echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> $HOME/.bash_profile
+        creates: $HOME/.bash_profile
+  
+    - name: Initialize rbenv
+      become: true
+      shell:
+        cmd: echo 'eval "$(rbenv init -)"' >> $HOME/.bash_profile
+        creates: $HOME/.bash_profile
+  
+    - name: Install ruby-build plugin
+      become: true
+      git:
+        repo: https://github.com/rbenv/ruby-build.git
+        dest: "{{ rbenv_clone_result.changed | ternary(RBENV_ROOT + '/plugins/ruby-build', RBENV_ROOT + '/plugins/ruby-build') }}"
+        update: no
+  
+    - name: Install Ruby
+      become: true
+      shell:
+        cmd: rbenv install 3.1.2
