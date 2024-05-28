@@ -22,40 +22,24 @@
 
 - name: Set RBENV_ROOT environment variable
   become: true
-  shell:
-    cmd: |
-      echo 'export RBENV_ROOT="/usr/local/rbenv"' >> /etc/profile.d/rbenv.sh
+  shell: |
+    echo 'export RBENV_ROOT="/usr/local/rbenv"' >> /etc/profile.d/rbenv.sh
   args:
     creates: /etc/profile.d/rbenv.sh
 
 - name: Add rbenv to the PATH
   become: true
-  shell:
-    cmd: |
-      echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> /etc/profile.d/rbenv.sh
+  shell: |
+    echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> /etc/profile.d/rbenv.sh
   args:
     creates: /etc/profile.d/rbenv.sh
 
 - name: Initialize rbenv
   become: true
-  shell:
-    cmd: |
-      echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh
+  shell: |
+    echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh
   args:
     creates: /etc/profile.d/rbenv.sh
-
-- name: Ensure /etc/profile.d/rbenv.sh is sourced
-  become: true
-  lineinfile:
-    path: /etc/profile
-    line: 'source /etc/profile.d/rbenv.sh'
-    create: yes
-
-- name: Reload shell to apply rbenv settings
-  become: true
-  shell: source /etc/profile.d/rbenv.sh
-  args:
-    executable: /bin/bash
 
 - name: Install ruby-build plugin
   become: true
@@ -66,8 +50,14 @@
 
 - name: Install Ruby
   become: true
-  shell: rbenv install 3.1.2
+  shell: /usr/local/rbenv/bin/rbenv install 3.1.2
   environment:
     RBENV_ROOT: /usr/local/rbenv
   args:
     creates: /usr/local/rbenv/versions/3.1.2
+
+- name: Set global Ruby version
+  become: true
+  shell: /usr/local/rbenv/bin/rbenv global 3.1.2
+  environment:
+    RBENV_ROOT: /usr/local/rbenv
