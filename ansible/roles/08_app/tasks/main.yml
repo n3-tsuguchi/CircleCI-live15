@@ -30,4 +30,14 @@
   yum:
     name: mysql-community-devel
     state: present
+
+- name: Create directory for asset precompile
+  ansible.builtin.file:
+    path: /var/www/raisetech-live8-sample-app
+    state: directory
+
+- name: asset precompile
+  command: bash -lc "rails assets:precompile"
+  args:
+    chdir: /var/www/raisetech-live8-sample-app
     
