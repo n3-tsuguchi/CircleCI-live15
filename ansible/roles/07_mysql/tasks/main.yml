@@ -2,32 +2,46 @@
 - name: Remove MariaDB
   become: true
   yum:
-    name: mariadb-libs
+    name: mariadb-server
     state: absent
 
-- name: Install MySQL
-  become: true
+- name: Install MySQL repository
+  become_user: root
   yum:
     name: 'https://repo.mysql.com//mysql80-community-release-el7-7.noarch.rpm'
     state: present
   register: mysql_installed
 
 - name: Import GPG key 
-  become: true
+  become_user: root
   ansible.builtin.rpm_key:
     state: present
     key: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
   when: mysql_installed.changed
 
 - name: install mysql-community-client
-  become: true
+  become_user: root
   yum:
     name: mysql-community-client
     state: present
+  when: mysql_installed.changed
 
 - name: Install mysql-community-devel
-  become: true
+  become_user: root
   yum:
     name: mysql-community-devel
     state: present
-    
+  when: mysql_installed.changed
+
+- name: bin/setup
+  shell: |
+    bash -lc "bin/setup"
+  args: 
+    chdir: "{{ sample_app_dir }}"
+  when: mysql_installed.changed
+
+- name: asset precompile
+  shell: |
+    bash -lc "rails assets:precompile"
+  args: 
+    chdir: "{{ sample_app_dir }}"
