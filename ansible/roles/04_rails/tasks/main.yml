@@ -1,15 +1,16 @@
 ---
-- name: check rails install
+- name: Check if rails is installed
   shell: bash -lc "gem list -e rails | grep {{ rails_version }}"
   register: check_rails_installed
   changed_when: no
   ignore_errors: yes
+  environment:
+    RBENV_ROOT: /usr/local/rbenv
+    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
 
-- name: install rails
-  gem:
-    name: rails
-    version: "{{ rails_version }}"
-    executable: /home/ec2-user/.rbenv/shims/gem
-    user_install: no
-  when: check_rails_installed.failed
-  
+- name: Install rails
+  shell: bash -lc "gem install rails -v {{ rails_version }}"
+  when: check_rails_installed is failed
+  environment:
+    RBENV_ROOT: /usr/local/rbenv
+    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
