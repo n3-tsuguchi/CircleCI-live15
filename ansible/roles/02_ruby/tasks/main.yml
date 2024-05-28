@@ -44,19 +44,25 @@
   args:
     creates: /etc/profile.d/rbenv.sh
 
-- name: Install ruby-build plugin
-  become: true
-  git:
-    repo: https://github.com/rbenv/ruby-build.git
-    dest: /usr/local/rbenv/plugins/ruby-build
-    update: no
-
 - name: Ensure /etc/profile.d/rbenv.sh is sourced
   become: true
   lineinfile:
     path: /etc/profile
     line: 'source /etc/profile.d/rbenv.sh'
     create: yes
+
+- name: Reload shell to apply rbenv settings
+  become: true
+  shell: source /etc/profile.d/rbenv.sh
+  args:
+    executable: /bin/bash
+
+- name: Install ruby-build plugin
+  become: true
+  git:
+    repo: https://github.com/rbenv/ruby-build.git
+    dest: /usr/local/rbenv/plugins/ruby-build
+    update: no
 
 - name: Install Ruby
   become: true
