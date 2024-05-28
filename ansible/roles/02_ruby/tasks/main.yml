@@ -42,7 +42,7 @@
   become: true
   git:
     repo: https://github.com/rbenv/ruby-build.git
-    dest: "{{ rbenv_clone_result.changed | ternary(RBENV_ROOT + '/plugins/ruby-build', RBENV_ROOT + '/plugins/ruby-build') }}"
+    dest: "{{ rbenv_clone_result.changed | ternary('/usr/local/rbenv/plugins/ruby-build', '/usr/local/rbenv/plugins/ruby-build') }}"
     update: no
 
 - name: Install Ruby
