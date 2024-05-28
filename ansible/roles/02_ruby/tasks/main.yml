@@ -23,35 +23,45 @@
 - name: Set RBENV_ROOT environment variable
   become: true
   shell:
-    cmd: echo 'export RBENV_ROOT="/usr/local/rbenv"' >> $HOME/.bash_profile
-    creates: $HOME/.bash_profile
+    cmd: |
+      echo 'export RBENV_ROOT="/usr/local/rbenv"' >> /etc/profile.d/rbenv.sh
+  args:
+    creates: /etc/profile.d/rbenv.sh
 
 - name: Add rbenv to the PATH
   become: true
   shell:
-    cmd: echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> $HOME/.bash_profile
-    creates: $HOME/.bash_profile
-
-- name: Install rbenv
-  become: yes
-  package:
-    name: rbenv
-    state: present
+    cmd: |
+      echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> /etc/profile.d/rbenv.sh
+  args:
+    creates: /etc/profile.d/rbenv.sh
 
 - name: Initialize rbenv
   become: true
   shell:
-    cmd: echo 'eval "$(rbenv init -)"' >> $HOME/.bash_profile
-    creates: $HOME/.bash_profile
+    cmd: |
+      echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh
+  args:
+    creates: /etc/profile.d/rbenv.sh
 
 - name: Install ruby-build plugin
   become: true
   git:
     repo: https://github.com/rbenv/ruby-build.git
-    dest: "{{ rbenv_clone_result.changed | ternary('/usr/local/rbenv/plugins/ruby-build', '/usr/local/rbenv/plugins/ruby-build') }}"
+    dest: /usr/local/rbenv/plugins/ruby-build
     update: no
+
+- name: Ensure /etc/profile.d/rbenv.sh is sourced
+  become: true
+  lineinfile:
+    path: /etc/profile
+    line: 'source /etc/profile.d/rbenv.sh'
+    create: yes
 
 - name: Install Ruby
   become: true
-  shell:
-    cmd: rbenv install 3.1.2
+  shell: rbenv install 3.1.2
+  environment:
+    RBENV_ROOT: /usr/local/rbenv
+  args:
+    creates: /usr/local/rbenv/versions/3.1.2
