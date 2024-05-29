@@ -24,6 +24,7 @@
   become: true
   shell: |
     echo 'export RBENV_ROOT="/usr/local/rbenv"' >> /etc/profile.d/rbenv.sh
+    export PATH="$HOME/.rbenv/bin:$PATH"
   args:
     creates: /etc/profile.d/rbenv.sh
 
