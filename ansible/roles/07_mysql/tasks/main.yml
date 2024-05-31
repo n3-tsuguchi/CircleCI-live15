@@ -22,16 +22,33 @@
     recurse: yes
   when: git_clone.changed
 
+- name: Verify that template files exist and have correct permissions
+  local_action:
+    module: stat
+    path: "{{ item }}"
+  loop:
+    - "{{ playbook_dir }}/templates/database.yml.j2"
+    - "{{ playbook_dir }}/templates/development.rb.j2"
+    - "{{ playbook_dir }}/templates/storage.yml.j2"
+    - "{{ playbook_dir }}/templates/unicorn.rb.j2"
+  register: template_files
+
+- name: Fail if template files do not exist or are not readable
+  fail:
+    msg: "Template file {{ item.stat.path }} does not exist or is not readable"
+  when: not item.stat.exists or not item.stat.readable
+  loop: "{{ template_files.results }}"
+
 - name: Copy configuration files
   become: true
   template:
     src: "{{ item.src }}"
     dest: "{{ sample_app_dir }}/config/{{ item.dest }}"
   loop:
-    - { src: 'templates/database.yml.j2', dest: 'database.yml' }
-    - { src: 'templates/development.rb.j2', dest: 'environments/development.rb' }
-    - { src: 'templates/storage.yml.j2', dest: 'storage.yml' }
-    - { src: 'templates/unicorn.rb.j2', dest: 'unicorn.rb' }
+    - { src: '{{ playbook_dir }}/templates/database.yml.j2', dest: 'database.yml' }
+    - { src: '{{ playbook_dir }}/templates/development.rb.j2', dest: 'environments/development.rb' }
+    - { src: '{{ playbook_dir }}/templates/storage.yml.j2', dest: 'storage.yml' }
+    - { src: '{{ playbook_dir }}/templates/unicorn.rb.j2', dest: 'unicorn.rb' }
 
 - name: Run application setup script
   shell: bash -lc "bin/setup"
