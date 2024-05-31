@@ -27,14 +27,14 @@
   template:
     src: "{{ item.src }}"
     dest: "{{ sample_app_dir }}/config/{{ item.dest }}"
+    owner: owner
+    group: group
+    mode: '0644'
   loop:
     - { src: 'templates/database.yml.j2', dest: 'database.yml' }
     - { src: 'templates/development.rb.j2', dest: 'environments/development.rb' }
     - { src: 'templates/storage.yml.j2', dest: 'storage.yml' }
     - { src: 'templates/unicorn.rb.j2', dest: 'unicorn.rb' }
-  owner: owner
-    group: group
-    mode: 0644
 
 - name: Run application setup script
   shell: bash -lc "bin/setup"
