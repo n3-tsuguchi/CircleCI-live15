@@ -43,11 +43,6 @@
     mode: '0755'
     state: file
 
-- name: Set Ruby 3.1.2 as global default
-  command: bash -lc 'rbenv global 3.1.2'
-  environment:
-    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
-
 - name: Rehash rbenv
   command: bash -lc 'rbenv rehash'
   environment:
