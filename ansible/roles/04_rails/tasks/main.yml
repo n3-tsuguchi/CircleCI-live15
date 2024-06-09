@@ -1,9 +1,9 @@
 ---
 - name: Check if Rails is installed
-    shell: bash -lc "gem list -e rails | grep 7.1.3.2"
-    register: rails_check
-    changed_when: no
-    ignore_errors: true
+  shell: bash -lc "gem list -e rails | grep 7.1.3.2"
+  register: rails_check
+  changed_when: no
+  ignore_errors: true
 
 - name: Install Rails 7.1.3.2
   gem:
