@@ -8,7 +8,8 @@
   set_fact:
     install_bundler: "{{ 'yes' if (bundler_version_check.stdout is not defined) or ('Bundler version 2.3.14' not in bundler_version_check.stdout) else 'no' }}"
 
-- name: Install Bundler
-  command: bash -lc 'gem install bundler -v 2.3.14'
+- name: Install specific version of Bundler
+  command: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; gem install bundler -v 2.3.14'
   environment:
     PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
