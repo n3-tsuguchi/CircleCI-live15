@@ -1,8 +1,8 @@
 ---
 - name: Check if Bundler is installed
-    stat:
-      path: /home/ec2-user/.rbenv/versions/3.1.2/bin/bundle
-    register: bundler_check
+　stat:
+    path: /home/ec2-user/.rbenv/versions/3.1.2/bin/bundle
+　register: bundler_check
 
-  - name: Install Bundler
-    command: bash -lc "gem install bundler"
+- name: Install Bundler
+　command: bash -lc "gem install bundler"
