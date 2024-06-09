@@ -14,7 +14,7 @@
 
 - name: Set local Ruby version for a user
   become: true
-  become_user: your_username  # ユーザー名を指定
+  become_user: ec2-user
   shell: echo "3.1.2" > ~/.ruby-version
 
 - name: Clone rbenv repository
