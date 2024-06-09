@@ -28,11 +28,14 @@
     src: storage.yml.j2
     dest: "{{ sample_app_dir }}/config/storage.yml"
 
-- name: edit unicorn.rb
-  become_user: root
-  template:
-    src: unicorn.rb.j2
-    dest: "{{ sample_app_dir }}/config/unicorn.rb"
+- name: Check Unicorn installation
+  command: bash -lc "export PATH=/home/ec2-user/.rbenv/shims:$PATH; eval \"$(rbenv init -)\"; gem list --local | grep -iw unicorn"
+  register: unicorn_check
+  ignore_errors: true
+
+- name: Install Unicorn
+  command: bash -lc "export PATH=/home/ec2-user/.rbenv/shims:$PATH; eval \"$(rbenv init -)\"; gem install unicorn"
+  when: unicorn_check.stdout == ''
 
 - name: edit development.rb
   become_user: root
