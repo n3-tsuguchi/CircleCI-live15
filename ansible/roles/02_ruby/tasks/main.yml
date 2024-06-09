@@ -1,6 +1,7 @@
 ---
 - name: Install rbenv dependencies
   become: true
+  shell: echo "3.1.2" > ~/.ruby-version
   yum:
     name: "{{ item }}"
     state: present
