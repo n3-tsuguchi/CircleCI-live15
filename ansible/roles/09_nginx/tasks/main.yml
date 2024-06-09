@@ -29,3 +29,6 @@
     chdir: "{{ sample_app_dir }}"
   when: start_nginx.changed
   
+- name: Reload Nginx configuration
+  command: systemctl reload nginx
+  become: true
