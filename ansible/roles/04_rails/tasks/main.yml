@@ -1,14 +1,10 @@
 ---
 - name: Check if Rails is installed
-  shell: bash -lc "gem list -e rails | grep 7.1.3.2"
+  shell: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; gem list -e rails | grep 7.1.3.2'
   register: rails_check
   changed_when: no
   ignore_errors: true
 
 - name: Install Rails 7.1.3.2
-  gem:
-    name: rails
-    version: 7.1.3.2
-    user_install: no
-    executable: /home/ec2-user/.rbenv/shims/gem
+  command: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; gem install rails -v 7.1.3.2'
   when: rails_check is failed
