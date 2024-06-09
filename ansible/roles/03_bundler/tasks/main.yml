@@ -1,4 +1,14 @@
 ---
+- name: Check if project was cloned
+  stat:
+    path: "{{ app_root_dir }}/.git"
+  register: was_cloned_rails
+
+- name: Check if Gemfile directory exists
+  stat:
+    path: "{{ app_root_dir }}/Gemfile"
+  register: has_directory_gemfile
+
 - name: Check if bundler exists
   shell: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; bundler version | grep {{ bundler_version }}'
   register: bundler_exists
