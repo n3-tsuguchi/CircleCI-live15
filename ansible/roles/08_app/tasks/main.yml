@@ -46,7 +46,7 @@
 
 - name: Install Unicorn Gem
   become_user: ec2-user
-  command: gem install unicorn
+  command: gem install unicorn　--user-install
 
 - name: Install Unicorn
   become: true
