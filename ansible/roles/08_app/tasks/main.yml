@@ -28,28 +28,70 @@
     src: storage.yml.j2
     dest: "{{ sample_app_dir }}/config/storage.yml"
 
-- name: Check Unicorn installation
-  command: bash -lc "export PATH=/home/ec2-user/.rbenv/shims:$PATH; eval \"$(rbenv init -)\"; gem list --local | grep -iw unicorn"
-  register: unicorn_check
-  ignore_errors: true
-
-- name: Install Unicorn
-  command: bash -lc "export PATH=/home/ec2-user/.rbenv/shims:$PATH; eval \"$(rbenv init -)\"; gem install unicorn"
-  when: unicorn_check.stdout == ''
-
-- name: Check Unicorn process
-  command: ps aux | grep -w unicorn
-  register: unicorn_process_check
-  ignore_errors: true
-
-- name: Start Unicorn service
-  command: bash -lc "export PATH=/home/ec2-user/.rbenv/shims:$PATH; eval \"$(rbenv init -)\"; cd /path/to/your/app && unicorn -c config/unicorn.rb -E production -D"
-  when: "'unicorn master' not in unicorn_process_check.stdout"
-
-
-- name: edit development.rb
+- name: Install rbenv
   become_user: root
-  template:
-    src: development.rb.j2
-    dest: "{{ sample_app_dir }}/config/environments/development.rb"
-    
+  shell: |
+    git clone https://github.com/rbenv/rbenv.git /usr/local/rbenv
+    echo 'export PATH="/usr/local/rbenv/bin:$PATH"' >> ~/.bash_profile
+    echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
+
+- name: Install dependencies for rbenv
+  yum:
+    name: 
+      - git
+      - gcc
+      - openssl-devel
+      - readline-devel
+      - zlib-devel
+    state: present
+
+- name: Clone ruby-build repository
+  git:
+    repo: 'https://github.com/rbenv/ruby-build.git'
+    dest: /usr/local/rbenv/plugins/ruby-build
+    version: master
+    force: yes
+
+- name: Add rbenv to PATH
+  lineinfile:
+    path: /etc/profile.d/rbenv.sh
+    line: 'export PATH="/usr/local/rbenv/bin:$PATH"'
+    create: yes
+    state: present
+
+- name: Initialize rbenv
+  lineinfile:
+    path: /etc/profile.d/rbenv.sh
+    line: 'eval "$(rbenv init -)"'
+    create: yes
+    state: present
+
+- name: Ensure profile.d scripts are executable
+  file:
+    path: /etc/profile.d/rbenv.sh
+    mode: '0755'
+    state: file
+
+- name: Rehash rbenv
+  command: bash -lc 'rbenv rehash'
+  environment:
+    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
+- name: Set global Ruby version
+  command: /usr/local/rbenv/bin/rbenv global 3.1.2
+  environment:
+    RBENV_ROOT: /usr/local/rbenv
+
+- name: Install Rails
+  command: bash -lc 'gem install rails -v 7.1.3.2'
+  environment:
+    PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
+- name: Check Rails version
+  command: bash -lc 'rails -v'
+  environment:
+    PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+  register: rails_version_check
+
+- debug:
+    msg: "Rails version is {{ rails_version_check.stdout }}"
