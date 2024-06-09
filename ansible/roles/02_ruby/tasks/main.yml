@@ -1,14 +1,17 @@
 ---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
 - name: Install dependencies for rbenv
   apt:
-    name: "{{ item }}"
+    name: 
+      - git
+      - build-essential
+      - libssl-dev
+      - libreadline-dev
+      - zlib1g-dev
     state: present
-  with_items:
-    - git
-    - build-essential
-    - libssl-dev
-    - libreadline-dev
-    - zlib1g-dev
 
 - name: Clone rbenv repository
   git:
