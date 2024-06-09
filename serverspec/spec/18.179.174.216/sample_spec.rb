@@ -2,7 +2,7 @@ require 'spec_helper'
 
 set :backend, :ssh
 set :host, '18.179.174.216'
-set :ssh_options, :user => 'ec2-user', :keys => ['kawakami.pem']
+set :ssh_options, user: 'ec2-user', keys: ['kawakami.pem']
 
 listen_port = 80
 rbenv_path = '/home/ec2-user/.rbenv/shims:$PATH'
