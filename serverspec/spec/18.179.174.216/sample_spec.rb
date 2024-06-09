@@ -6,17 +6,17 @@ set :ssh_options, :user => 'ec2-user', :keys => ['kawakami.pem']
 
 listen_port = 80
 
-describe command('ruby -v') do
+describe command('ruby --version') do
   let(:path) { '/home/ec2-user/.rbenv/shims:$PATH' }
   its(:stdout) { should match /ruby 3.1.2/ }
 end
 
-describe package('bundler') do
+describe package('bundler --version') do
   let(:path) { '/home/ec2-user/.rbenv/shims:$PATH' }
   it { should be_installed.by('gem').with_version('2.3.14') }
 end
 
-describe package('rails') do
+describe package('rails --version') do
   let(:path) { '/home/ec2-user/.rbenv/shims:$PATH' }
   it { should be_installed.by('gem').with_version('7.1.3.2') }
 end
