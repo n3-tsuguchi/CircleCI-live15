@@ -54,21 +54,10 @@
     mode: '0755'
     state: file
 
-- name: Install Ruby 3.1.2 using rbenv (asynchronous task)
-  command: bash -lc 'rbenv install 3.1.2'
+- name: Install Ruby 3.1.2 using rbenv
+  command: bash -lc 'rbenv install 3.1.2 --skip-existing'
   environment:
     PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
-  async: 3600
-  poll: 0
-  register: ruby_install
-
-- name: Wait for Ruby 3.1.2 installation to complete
-  async_status:
-    jid: "{{ ruby_install.ansible_job_id }}"
-  register: job_result
-  until: job_result.finished
-  retries: 30
-  delay: 60
 
 - name: Set Ruby 3.1.2 as global default
   command: bash -lc 'rbenv global 3.1.2'
