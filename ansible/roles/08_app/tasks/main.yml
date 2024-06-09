@@ -39,4 +39,8 @@
   template:
     src: development.rb.j2
     dest: "{{ sample_app_dir }}/config/environments/development.rb"
+
+- name: Ensure Unicorn is running
+  command: /etc/init.d/unicorn start
+  become: true
     
