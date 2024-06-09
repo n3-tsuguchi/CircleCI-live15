@@ -43,14 +43,6 @@
     mode: '0755'
     state: file
 
-- name: Install Ruby 3.1.2
-  command: bash -lc 'rbenv install 3.1.2'
-  environment:
-    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
-  async: 300
-  poll: 0
-
-
 - name: Set Ruby 3.1.2 as global default
   command: bash -lc 'rbenv global 3.1.2'
   environment:
