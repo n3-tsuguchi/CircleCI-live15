@@ -1,14 +1,8 @@
 ---
-- name: check bundler exists
-  shell: bash -lc 'export PATH="$HOME/.rbenv/bin:$PATH"; eval "$(rbenv init -)"; bundler version | grep {{ bundler_version }}'
-  register: bundler_exists
-  changed_when: no
-  ignore_errors: yes
+- name: Check if Bundler is installed
+    stat:
+      path: /home/ec2-user/.rbenv/versions/3.1.2/bin/bundle
+    register: bundler_check
 
-- name: bundler install
-  gem: 
-    name: bundler
-    version: "{{ bundler_version }}"
-    executable: "/home/ec2-user/.rbenv/shims/gem"
-    user_install: no
-  when: bundler_exists is failed
+  - name: Install Bundler
+    command: bash -lc "gem install bundler"
