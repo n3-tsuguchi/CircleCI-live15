@@ -18,44 +18,25 @@
 
 - name: create database.yml
   become_user: root
-  copy:
-    content: |
-      # Your database.yml content here
+  template:
+    src: database.yml.j2
     dest: "{{ sample_app_dir }}/config/database.yml"
 
 - name: create storage.yml
   become_user: root
-  copy:
-    content: |
-      # Your storage.yml content here
+  template:
+    src: storage.yml.j2
     dest: "{{ sample_app_dir }}/config/storage.yml"
 
 - name: edit unicorn.rb
   become_user: root
-  copy:
-    content: |
-      # Your unicorn.rb content here
+  template:
+    src: unicorn.rb.j2
     dest: "{{ sample_app_dir }}/config/unicorn.rb"
 
 - name: edit development.rb
   become_user: root
-  copy:
-    content: |
-      # Your development.rb content here
+  template:
+    src: development.rb.j2
     dest: "{{ sample_app_dir }}/config/environments/development.rb"
-
-- name: Install Unicorn Gem
-  become_user: ec2-user
-  command: gem install unicorn　--user-install
-
-- name: Install Unicorn
-  become: true
-  package:
-    name: unicorn
-    state: present
-
-- name: Start Unicorn service
-  become: true
-  service:
-    name: unicorn
-    state: started
+    
