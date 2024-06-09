@@ -1,4 +1,13 @@
 ---
+- name: Install python-apt if not present
+  raw: apt-get install -y python-apt
+  changed_when: false
+  ignore_errors: true
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
 - name: Install Rails dependencies
   apt:
     name:
@@ -26,3 +35,4 @@
 
 - debug:
     msg: "Rails version is {{ rails_version_check.stdout }}"
+
