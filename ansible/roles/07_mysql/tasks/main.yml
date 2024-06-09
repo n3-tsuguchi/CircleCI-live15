@@ -1,48 +1,37 @@
 ---
-- name: git clone app
-  become: true
-  git:
-    repo: https://github.com/yuta-ushijima/raisetech-live8-sample-app.git
-    dest: "{{ sample_app_dir }}"
-    force: yes
-  register: git_clone
+- name: remove the MariaDB
+  become_user: root
+  yum:
+    name: mariadb-*
+    state: absent
 
-- name: bundle install
-  shell: bash -lc "bundle install"
+- name: Import MySQL GPG key
+  become_user: root
+  shell: rpm --import "https://repo.mysql.com/RPM-GPG-KEY-mysql-2023"
   args:
-    chdir: "{{ sample_app_dir }}"
-  when: git_clone.changed
+    creates: /var/lib/mysql/mysql80-community-release-el7-7.noarch.rpm
 
-- name: change owner /var/www/raisetech-live8-sample-app
-  become: true
-  file:
-    path: "{{ sample_app_dir }}"
-    state: directory
-    owner: ec2-user
-    recurse: yes
-  when: git_clone.changed
+- name: install the mysql rpm from a remote repo
+  become_user: root
+  yum:
+    name: 'https://repo.mysql.com//mysql80-community-release-el7-7.noarch.rpm'
+    state: present
 
-- name: Copy configuration files
-  become: true
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ sample_app_dir }}/config/{{ item.dest }}"
-    owner: owner
-    group: group
-    mode: '0644'
-  loop:
-    - { src: 'templates/database.yml.j2', dest: 'database.yml' }
-    - { src: 'templates/development.rb.j2', dest: 'environments/development.rb' }
-    - { src: 'templates/storage.yml.j2', dest: 'storage.yml' }
-    - { src: 'templates/unicorn.rb.j2', dest: 'unicorn.rb' }
+- name: install mysql-community-server
+  become_user: root
+  yum: 
+    name: mysql-community-server
+    state: present
 
-- name: Run application setup script
-  shell: bash -lc "bin/setup"
-  args:
-    chdir: "{{ sample_app_dir }}"
+- name: install mysql-community-devel
+  become_user: root
+  yum: 
+    name: mysql-community-devel
+    state: present
 
-- name: Precompile application assets
-  shell: bash -lc "rails assets:precompile"
-  args:
-    chdir: "{{ sample_app_dir }}"
-
+- name: Start MySQL service
+  become_user: root
+  service:
+    name: mysqld
+    state: started
+    
