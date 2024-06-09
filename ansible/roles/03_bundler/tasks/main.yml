@@ -1,14 +1,34 @@
 ---
-- name: check bundler exists
-  shell: bash -lc "bundler version | grep {{ bundler_version }}"
+- name: Check if bundler exists
+  shell: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; bundler version | grep {{ bundler_version }}'
   register: bundler_exists
   changed_when: no
   ignore_errors: yes
 
-- name: bundler install
-  gem: 
-    name: bundler
-    version: "{{ bundler_version }}"
-    executable: "/home/ec2-user/.rbenv/shims/gem"
-    user_install: no
+- name: Install bundler
+  shell: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; gem install bundler -v {{ bundler_version }}'
   when: bundler_exists is failed
+  args:
+    executable: /bin/bash
+
+- name: Check bundler version installed
+  shell: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; bundler -v | grep {{ bundler_version }}'
+  changed_when: false
+  args:
+    executable: /bin/bash
+
+- name: Install gems
+  shell: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; bundle install'
+  args:
+    chdir: "{{ app_root_dir }}"
+  when: not was_cloned_rails.stat.exists or has_directory_gemfile.stat.exists
+  args:
+    executable: /bin/bash
+
+- name: Install webpacker
+  shell: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; bundle exec rails webpacker:install'
+  args:
+    chdir: "{{ app_root_dir }}"
+  when: not was_cloned_rails.stat.exists or has_directory_gemfile.stat.exists
+  args:
+    executable: /bin/bash
