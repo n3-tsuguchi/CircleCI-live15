@@ -1,7 +1,6 @@
 ---
 - name: Install rbenv dependencies
   become: true
-  shell: echo "3.1.2" > ~/.ruby-version
   yum:
     name: "{{ item }}"
     state: present
@@ -12,6 +11,11 @@
     - openssl-devel
     - zlib-devel
     - readline-devel
+
+- name: Set local Ruby version for a user
+  become: true
+  become_user: your_username  # ユーザー名を指定
+  shell: echo "3.1.2" > ~/.ruby-version
 
 - name: Clone rbenv repository
   become: true
@@ -63,3 +67,4 @@
   shell: /usr/local/rbenv/bin/rbenv global 3.1.2
   environment:
     RBENV_ROOT: /usr/local/rbenv
+    
