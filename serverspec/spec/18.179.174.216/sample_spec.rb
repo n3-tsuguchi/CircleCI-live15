@@ -35,6 +35,10 @@ describe package('unicorn') do
   it { should be_installed.by('gem') }
 end
 
+describe command('ps aux | grep unicorn') do
+  its(:stdout) { should match /unicorn master/ }
+end
+
 describe file('/etc/nginx/conf.d/rails.conf') do
   it { should be_file }
 end
