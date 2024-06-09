@@ -1,38 +1,83 @@
 ---
-- name: Install python-apt if not present
-  raw: apt-get install -y python-apt
-  changed_when: false
-  ignore_errors: true
-
-- name: Update apt cache
-  apt:
-    update_cache: yes
-
-- name: Install Rails dependencies
-  apt:
-    name:
-      - nodejs
-      - yarn
+- name: Install dependencies for rbenv
+  yum:
+    name: 
+      - git
+      - gcc
+      - openssl-devel
+      - readline-devel
+      - zlib-devel
     state: present
 
-- name: Install Rails (asynchronous task)
-  command: bash -lc 'gem install rails -v 7.1.3.2'
-  async: 1800
-  poll: 0
-  register: rails_install_job
+- name: Clone rbenv repository
+  git:
+    repo: 'https://github.com/rbenv/rbenv.git'
+    dest: /usr/local/rbenv
+    version: master
+    force: yes
 
-- name: Wait for Rails installation to complete
-  async_status:
-    jid: "{{ rails_install_job.ansible_job_id }}"
-  register: rails_install_result
-  until: rails_install_result.finished
-  retries: 30
-  delay: 60
+- name: Clone ruby-build repository
+  git:
+    repo: 'https://github.com/rbenv/ruby-build.git'
+    dest: /usr/local/rbenv/plugins/ruby-build
+    version: master
+    force: yes
+
+- name: Add rbenv to PATH
+  lineinfile:
+    path: /etc/profile.d/rbenv.sh
+    line: 'export PATH="/usr/local/rbenv/bin:$PATH"'
+    create: yes
+    state: present
+
+- name: Initialize rbenv
+  lineinfile:
+    path: /etc/profile.d/rbenv.sh
+    line: 'eval "$(rbenv init -)"'
+    create: yes
+    state: present
+
+- name: Ensure profile.d scripts are executable
+  file:
+    path: /etc/profile.d/rbenv.sh
+    mode: '0755'
+    state: file
+
+- name: Install Ruby 3.1.2
+  command: bash -lc 'rbenv install 3.1.2'
+  environment:
+    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
+- name: Set Ruby 3.1.2 as global default
+  command: bash -lc 'rbenv global 3.1.2'
+  environment:
+    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
+- name: Rehash rbenv
+  command: bash -lc 'rbenv rehash'
+  environment:
+    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
+- name: Set global Ruby version
+  command: /usr/local/rbenv/bin/rbenv global 3.1.2
+  environment:
+    RBENV_ROOT: /usr/local/rbenv
+
+- name: Install Bundler
+  command: bash -lc 'gem install bundler'
+  environment:
+    PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
+- name: Install Rails
+  command: bash -lc 'gem install rails -v 7.1.3.2'
+  environment:
+    PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
 
 - name: Check Rails version
   command: bash -lc 'rails -v'
+  environment:
+    PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
   register: rails_version_check
 
 - debug:
     msg: "Rails version is {{ rails_version_check.stdout }}"
-
