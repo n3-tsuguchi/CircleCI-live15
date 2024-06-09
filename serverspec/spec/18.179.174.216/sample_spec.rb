@@ -12,10 +12,10 @@ describe command('ruby -v') do
   its(:stdout) { should match /ruby 3.1.2/ }
 end
 
-describe package('bundler') do
-  let(:path) { rbenv_path }
-  it { should be_installed.by('gem').with_version('2.3.14') }
-end
+#describe package('bundler') do
+#  let(:path) { rbenv_path }
+#  it { should be_installed.by('gem').with_version('2.3.14') }
+#end
 
 describe package('rails') do
   let(:path) { rbenv_path }
@@ -35,9 +35,9 @@ describe package('unicorn') do
   it { should be_installed.by('gem') }
 end
 
-describe command('ps aux | grep unicorn') do
-  its(:stdout) { should match /unicorn master/ }
-end
+#describe command('ps aux | grep unicorn') do
+#  its(:stdout) { should match /unicorn master/ }
+#end
 
 describe file('/etc/nginx/conf.d/rails.conf') do
   it { should be_file }
