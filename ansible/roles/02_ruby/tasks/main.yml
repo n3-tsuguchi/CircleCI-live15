@@ -47,37 +47,21 @@
     mode: '0755'
     state: file
 
-- name: Install ruby-build plugin
-  become: true
-  git:
-    repo: https://github.com/rbenv/ruby-build.git
-    dest: /usr/local/rbenv/plugins/ruby-build
-    update: no
-
-- name: Load rbenv
-  shell: source /etc/profile.d/rbenv.sh
+- name: Load rbenv environment
+  shell: |
+    export PATH="/usr/local/rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+    rbenv install 3.1.2
+    rbenv global 3.1.2
+    rbenv rehash
   args:
     executable: /bin/bash
-
-- name: Install Ruby 3.1.2
-  command: bash -lc 'rbenv install 3.1.2'
   environment:
-    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+    RBENV_ROOT: /usr/local/rbenv
 
-- name: Set Ruby 3.1.2 as global default
-  command: bash -lc 'rbenv global 3.1.2'
-  environment:
-    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
-
-- name: Rehash rbenv
-  command: bash -lc 'rbenv rehash'
-  environment:
-    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
-
-
-- name: Set global Ruby version
+- name: Ensure rbenv global Ruby version is set
   become: true
   shell: /usr/local/rbenv/bin/rbenv global 3.1.2
   environment:
     RBENV_ROOT: /usr/local/rbenv
-    
+
