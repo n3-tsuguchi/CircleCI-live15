@@ -44,12 +44,6 @@
       # Your development.rb content here
     dest: "{{ sample_app_dir }}/config/environments/development.rb"
 
-- name: Ensure Unicorn is running
-  become: true
-  service:
-    name: unicorn
-    state: started
-
 - name: Install Unicorn
   become: true
   package:
@@ -61,4 +55,3 @@
   service:
     name: unicorn
     state: started
-
