@@ -1,9 +1,9 @@
 ---
 - name: Check if Rails is installed
-  shell: bash -lc 'rails -v'
+  shell: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; rails -v'
   register: rails_check
   ignore_errors: true
 
 - name: Install Rails
-  command: bash -lc 'gem install rails'
+  command: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; gem install rails'
   when: rails_check.failed
