@@ -37,6 +37,16 @@
   command: bash -lc "export PATH=/home/ec2-user/.rbenv/shims:$PATH; eval \"$(rbenv init -)\"; gem install unicorn"
   when: unicorn_check.stdout == ''
 
+- name: Check Unicorn process
+  command: ps aux | grep -w unicorn
+  register: unicorn_process_check
+  ignore_errors: true
+
+- name: Start Unicorn service
+  command: bash -lc "export PATH=/home/ec2-user/.rbenv/shims:$PATH; eval \"$(rbenv init -)\"; cd /path/to/your/app && unicorn -c config/unicorn.rb -E production -D"
+  when: "'unicorn master' not in unicorn_process_check.stdout"
+
+
 - name: edit development.rb
   become_user: root
   template:
