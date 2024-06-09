@@ -5,5 +5,5 @@
   register: bundler_check
 
 - name: Install Bundler
-  command: bash -lc "export PATH=/usr/local/rbenv/shims:$PATH; eval \"$(rbenv init -)\"; gem install bundler"
+  command: bash -lc "export PATH=/usr/local/rbenv/shims:$PATH; eval \"$(rbenv init -)\"; gem install bundler 2.3.14"
 
