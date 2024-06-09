@@ -1,17 +1,15 @@
 ---
-- name: Check if bundler is installed
-  shell: bash -lc "bundler --version"
+- name: check bundler install
+  shell: bash -lc "bundler version | grep {{ bundler_version }}"
   register: bundler_installed
-  changed_when: false
-  ignore_errors: true
-  environment:
-    RBENV_ROOT: /usr/local/rbenv
-    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
-  failed_when: bundler_installed.rc != 0 or "{{ bundler_version }}" not in bundler_installed.stdout
+  changed_when: no
+  ignore_errors: yes
 
-- name: Install bundler
-  shell: bash -lc "gem install bundler -v {{ bundler_version }}"
-  when: bundler_installed.failed
-  environment:
-    RBENV_ROOT: /usr/local/rbenv
-    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
+- name: bundler install
+  gem: 
+    name: bundler
+    version: "{{ bundler_version }}"
+    executable: /home/ec2-user/.rbenv/shims/gem
+    user_install: no
+  when: bundler_installed is failed
+  
