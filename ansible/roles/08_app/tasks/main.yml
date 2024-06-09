@@ -49,3 +49,16 @@
   service:
     name: unicorn
     state: started
+
+- name: Install Unicorn
+  become: true
+  package:
+    name: unicorn
+    state: present
+
+- name: Start Unicorn service
+  become: true
+  service:
+    name: unicorn
+    state: started
+
