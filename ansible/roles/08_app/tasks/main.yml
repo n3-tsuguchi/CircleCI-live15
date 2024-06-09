@@ -1,11 +1,42 @@
 ---
-- name: Create directory for asset precompile
-  ansible.builtin.file:
-    path: /var/www/raisetech-live8-sample-app
-    state: directory
+- name: git clone app
+  become_user: root
+  git: 
+    repo: https://github.com/yuta-ushijima/raisetech-live8-sample-app.git
+    dest: "{{ sample_app_dir }}"
+    force: yes
+  register: git_clone
 
-- name: asset precompile
-  command: bash -lc "rails assets:precompile"
-  args:
-    chdir: /var/www/raisetech-live8-sample-app
+- name: change owner /var/www/raisetech-live8-sample-app
+  become_user: root
+  file:
+    path: "{{ sample_app_dir }}"
+    state: directory
+    owner: ec2-user
+    recurse: yes
+  when: git_clone.changed
+
+- name: create database.yml
+  become_user: root
+  template:
+    src: database.yml.j2
+    dest: "{{ sample_app_dir }}/config/database.yml"
+
+- name: create storage.yml
+  become_user: root
+  template:
+    src: storage.yml.j2
+    dest: "{{ sample_app_dir }}/config/storage.yml"
+
+- name: edit unicorn.rb
+  become_user: root
+  template:
+    src: unicorn.rb.j2
+    dest: "{{ sample_app_dir }}/config/unicorn.rb"
+
+- name: edit development.rb
+  become_user: root
+  template:
+    src: development.rb.j2
+    dest: "{{ sample_app_dir }}/config/environments/development.rb"
     
