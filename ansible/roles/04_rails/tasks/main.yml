@@ -66,11 +66,6 @@
   environment:
     RBENV_ROOT: /usr/local/rbenv
 
-- name: Install Bundler
-  command: bash -lc 'gem install bundler'
-  environment:
-    PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
-
 - name: Install Rails
   command: bash -lc 'gem install rails -v 7.1.3.2'
   environment:
