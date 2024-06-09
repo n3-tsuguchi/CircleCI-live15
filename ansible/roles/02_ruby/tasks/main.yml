@@ -51,7 +51,7 @@
 
 - name: Install Ruby
   become: true
-  shell: /usr/local/rbenv/bin/rbenv install {{ ruby_version }}
+  shell: /usr/local/rbenv/bin/rbenv install 3.1.2
   environment:
     RBENV_ROOT: /usr/local/rbenv
   args:
@@ -59,6 +59,6 @@
 
 - name: Set global Ruby version
   become: true
-  shell: /usr/local/rbenv/bin/rbenv global {{ ruby_version }}
+  shell: /usr/local/rbenv/bin/rbenv global 3.1.2
   environment:
     RBENV_ROOT: /usr/local/rbenv
