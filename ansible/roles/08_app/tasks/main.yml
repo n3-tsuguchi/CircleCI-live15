@@ -44,6 +44,10 @@
       # Your development.rb content here
     dest: "{{ sample_app_dir }}/config/environments/development.rb"
 
+- name: Install Unicorn Gem
+  become_user: ec2-user
+  command: gem install unicorn
+
 - name: Install Unicorn
   become: true
   package:
