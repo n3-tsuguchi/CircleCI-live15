@@ -1,7 +1,7 @@
 ---
 - name: git clone app
   become: true
-  git: 
+  git:
     repo: https://github.com/yuta-ushijima/raisetech-live8-sample-app.git
     dest: "{{ sample_app_dir }}"
     force: yes
@@ -9,7 +9,7 @@
 
 - name: bundle install
   shell: bash -lc "bundle install"
-  args: 
+  args:
     chdir: "{{ sample_app_dir }}"
   when: git_clone.changed
 
@@ -32,7 +32,7 @@
     mode: '0644'
   remote_src: yes
   become: true
-  become_user: ec2_user
+  become_user: ec2-user
   loop:
     - { src: 'templates/database.yml.j2', dest: 'database.yml' }
     - { src: 'templates/development.rb.j2', dest: 'environments/development.rb' }
