@@ -18,7 +18,7 @@ end
 
 describe package('rails') do
   let(:path) { '/home/ec2-user/.rbenv/shims:$PATH' }
-  it { should be_installed.by('gem').with_version('7.0.4') }
+  it { should be_installed.by('gem').with_version('7.1.3.2') }
 end
 
 describe command('node -v') do
