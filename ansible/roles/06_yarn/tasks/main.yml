@@ -1,11 +1,9 @@
 ---
-- name: check yarn installed
-  shell: bash -lc "yarn --version | grep {{ yarn_version }}"
-  register: check_yarn_installed
-  changed_when: no
-  ignore_errors: yes
-
 - name: install yarn
-  shell: bash -lc "npm install --global yarn@{{ yarn_version }}"
-  when: check_yarn_installed is failed
+  npm:
+    name: yarn
+    state: present
+    global: yes
+  become: yes
+  when: not nodejs_bin.stat.exists
   
