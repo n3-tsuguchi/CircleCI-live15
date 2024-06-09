@@ -6,6 +6,27 @@ orbs:
   ruby: circleci/ruby@2.1.1
 
 jobs:
+  test:
+    docker:
+      - image: circleci/ruby:3.1.2
+    steps:
+      - checkout
+      - run:
+          name: Install Bundler
+          command: gem install bundler -v 2.3.14
+      - run:
+          name: Install Rails
+          command: gem install rails -v 7.1.3.2
+      - run:
+          name: Install Unicorn
+          command: gem install unicorn
+      - run:
+          name: Start Unicorn
+          command: bundle exec unicorn -c config/unicorn.rb -E production -D
+      - run:
+          name: Run Tests
+          command: bundle exec rspec
+          
   execute-ansible:
     executor: ansible-playbook/default
     steps:
