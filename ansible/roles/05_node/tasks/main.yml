@@ -1,17 +1,17 @@
 ---
-- name: check node install
-  shell: bash -lc "node --version"
-  register: check_node_installed
-  changed_when: false
-  failed_when: check_node_installed.rc != 0 or "{{ node_version }}" not in check_node_installed.stdout
+- name: check if nodejs already installed
+  stat:
+    path: /usrbin/node
+  register: nodejs_bin
 
-- name: install nvm
-  ansible.builtin.shell: >
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-  args:
-    creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
-  when: check_node_installed is failed
+- name: add repository for nodejs
+  shell: bash -lc "curl -sL https://rpm.nodesource.com/setup_16.x | bash -"
+  when: not nodejs_bin.stat.exists
+  become: yes
 
-- name: install node
-  shell: bash -lc "source ~/.nvm/nvm.sh && nvm install {{ node_version }}"
-  when: check_node_installed is failed
+- name: install nodejs
+  yum:
+    name: nodejs
+    state:  installed
+  become: yes
+  when: not nodejs_bin.stat.exists
