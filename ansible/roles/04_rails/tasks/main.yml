@@ -1,5 +1,28 @@
 ---
-- name: Install Rails
+- name: Install Rails dependencies
+  apt:
+    name:
+      - nodejs
+      - yarn
+    state: present
+
+- name: Install Rails (asynchronous task)
   command: bash -lc 'gem install rails -v 7.1.3.2'
-  environment:
-    PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+  async: 1800
+  poll: 0
+  register: rails_install_job
+
+- name: Wait for Rails installation to complete
+  async_status:
+    jid: "{{ rails_install_job.ansible_job_id }}"
+  register: rails_install_result
+  until: rails_install_result.finished
+  retries: 30
+  delay: 60
+
+- name: Check Rails version
+  command: bash -lc 'rails -v'
+  register: rails_version_check
+
+- debug:
+    msg: "Rails version is {{ rails_version_check.stdout }}"
