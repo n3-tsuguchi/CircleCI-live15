@@ -18,29 +18,34 @@
 
 - name: create database.yml
   become_user: root
-  template:
-    src: database.yml.j2
+  copy:
+    content: |
+      # Your database.yml content here
     dest: "{{ sample_app_dir }}/config/database.yml"
 
 - name: create storage.yml
   become_user: root
-  template:
-    src: storage.yml.j2
+  copy:
+    content: |
+      # Your storage.yml content here
     dest: "{{ sample_app_dir }}/config/storage.yml"
 
 - name: edit unicorn.rb
   become_user: root
-  template:
-    src: unicorn.rb.j2
+  copy:
+    content: |
+      # Your unicorn.rb content here
     dest: "{{ sample_app_dir }}/config/unicorn.rb"
 
 - name: edit development.rb
   become_user: root
-  template:
-    src: development.rb.j2
+  copy:
+    content: |
+      # Your development.rb content here
     dest: "{{ sample_app_dir }}/config/environments/development.rb"
 
 - name: Ensure Unicorn is running
-  command: /etc/init.d/unicorn start
   become: true
-    
+  service:
+    name: unicorn
+    state: started
