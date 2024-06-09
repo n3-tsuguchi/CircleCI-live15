@@ -1,51 +1,48 @@
 ---
-- name: Install rbenv dependencies
-  become: true
-  yum:
+- name: Install dependencies for rbenv
+  apt:
     name: "{{ item }}"
     state: present
-  loop:
+  with_items:
     - git
-    - gcc
-    - make
-    - openssl-devel
-    - zlib-devel
-    - readline-devel
-
-- name: Set local Ruby version for a user
-  become: true
-  become_user: ec2-user
-  shell: echo "3.1.2" > ~/.ruby-version
+    - build-essential
+    - libssl-dev
+    - libreadline-dev
+    - zlib1g-dev
 
 - name: Clone rbenv repository
-  become: true
   git:
-    repo: https://github.com/rbenv/rbenv.git
+    repo: 'https://github.com/rbenv/rbenv.git'
     dest: /usr/local/rbenv
-    update: no
-  register: rbenv_clone_result
+    version: master
+    force: yes
 
-- name: Set RBENV_ROOT environment variable
-  become: true
-  shell: |
-    echo 'export RBENV_ROOT="/usr/local/rbenv"' >> /etc/profile.d/rbenv.sh
-    export PATH="$HOME/.rbenv/bin:$PATH"
-  args:
-    creates: /etc/profile.d/rbenv.sh
+- name: Clone ruby-build repository
+  git:
+    repo: 'https://github.com/rbenv/ruby-build.git'
+    dest: /usr/local/rbenv/plugins/ruby-build
+    version: master
+    force: yes
 
-- name: Add rbenv to the PATH
-  become: true
-  shell: |
-    echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> /etc/profile.d/rbenv.sh
-  args:
-    creates: /etc/profile.d/rbenv.sh
+- name: Add rbenv to PATH
+  lineinfile:
+    path: /etc/profile.d/rbenv.sh
+    line: 'export PATH="/usr/local/rbenv/bin:$PATH"'
+    create: yes
+    state: present
 
 - name: Initialize rbenv
-  become: true
-  shell: |
-    echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh
-  args:
-    creates: /etc/profile.d/rbenv.sh
+  lineinfile:
+    path: /etc/profile.d/rbenv.sh
+    line: 'eval "$(rbenv init -)"'
+    create: yes
+    state: present
+
+- name: Ensure profile.d scripts are executable
+  file:
+    path: /etc/profile.d/rbenv.sh
+    mode: '0755'
+    state: file
 
 - name: Install ruby-build plugin
   become: true
@@ -54,13 +51,26 @@
     dest: /usr/local/rbenv/plugins/ruby-build
     update: no
 
-- name: Install Ruby
-  become: true
-  shell: /usr/local/rbenv/bin/rbenv install 3.1.2
-  environment:
-    RBENV_ROOT: /usr/local/rbenv
+- name: Load rbenv
+  shell: source /etc/profile.d/rbenv.sh
   args:
-    creates: /usr/local/rbenv/versions/3.1.2
+    executable: /bin/bash
+
+- name: Install Ruby 3.1.2
+  command: bash -lc 'rbenv install 3.1.2'
+  environment:
+    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
+- name: Set Ruby 3.1.2 as global default
+  command: bash -lc 'rbenv global 3.1.2'
+  environment:
+    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
+- name: Rehash rbenv
+  command: bash -lc 'rbenv rehash'
+  environment:
+    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+
 
 - name: Set global Ruby version
   become: true
