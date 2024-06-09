@@ -1,9 +1,9 @@
 ---
 - name: check node install
-  shell: bash -lc "node --version | grep {{ node_version }}"
+  shell: bash -lc "node --version"
   register: check_node_installed
-  changed_when: no
-  ignore_errors: yes
+  changed_when: false
+  failed_when: check_node_installed.rc != 0 or "{{ node_version }}" not in check_node_installed.stdout
 
 - name: install nvm
   ansible.builtin.shell: >
@@ -13,6 +13,5 @@
   when: check_node_installed is failed
 
 - name: install node
-  shell: bash -lc "nvm install {{ node_version }}"
+  shell: bash -lc "source ~/.nvm/nvm.sh && nvm install {{ node_version }}"
   when: check_node_installed is failed
-  
