@@ -30,9 +30,6 @@
     owner: owner
     group: group
     mode: '0644'
-  remote_src: yes
-  become: true
-  become_user: ec2-user
   loop:
     - { src: 'templates/database.yml.j2', dest: 'database.yml' }
     - { src: 'templates/development.rb.j2', dest: 'environments/development.rb' }
@@ -48,3 +45,4 @@
   shell: bash -lc "rails assets:precompile"
   args:
     chdir: "{{ sample_app_dir }}"
+
