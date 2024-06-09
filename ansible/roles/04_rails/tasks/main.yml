@@ -6,4 +6,4 @@
 
 - name: Install Rails
   command: bash -lc 'export PATH="/usr/local/rbenv/bin:$PATH"; eval "$(rbenv init -)"; gem install rails'
-  when: rails_check.failed
+  when: rails_check is defined and rails_check.failed
