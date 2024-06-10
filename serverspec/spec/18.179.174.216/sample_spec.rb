@@ -41,3 +41,10 @@ end
 describe command("curl http://127.0.0.1:#{listen_port}/ -o /dev/null -w \"%{http_code}\\n\" -s") do
   its(:stdout) { should match /^200$/ }
 end
+
+describe "Command" do
+  it "returns status code 200" do
+    output = `curl http://127.0.0.1:80/ -o /dev/null -w "%{http_code}\n" -s`
+    expect(output.trim).to eq("200")
+  end
+end
