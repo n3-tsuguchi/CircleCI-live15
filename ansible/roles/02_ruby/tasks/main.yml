@@ -60,7 +60,7 @@
     PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
 
 - name: Set Ruby 3.2.3 as global default
-  command: bash -lc 'rbenv global 3.1.2'
+  command: bash -lc 'rbenv global 3.2.3'
   environment:
     PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
 
