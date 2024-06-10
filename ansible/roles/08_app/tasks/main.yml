@@ -46,13 +46,13 @@
 
 - name: Install Ruby 3.2.3
   become: true
-  command: bash -lc "/usr/local/rbenv/bin/rbenv install -s 3.2.3"
+  command: bash -lc "rbenv install -s 3.2.3"
   environment:
     PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
 
 - name: Set Ruby 3.2.3 as global default
   become: true
-  command: bash -lc "/usr/local/rbenv/bin/rbenv global 3.2.3"
+  command: bash -lc "rbenv global 3.2.3"
   environment:
     PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
 
@@ -62,26 +62,20 @@
     content: "3.2.3\n"
     dest: "{{ sample_app_dir }}/.ruby-version"
 
+- name: Install Bundler
+  become: true
+  command: bash -lc "gem install bundler"
+  environment:
+    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
+
+- name: Run bundle install
+  become: true
+  command: bash -lc "cd {{ sample_app_dir }} && bundle install"
+  environment:
+    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
+
 - name: Ensure Unicorn is running
   become: true
   command: bash -lc "cd {{ sample_app_dir }} && bundle exec unicorn_rails -c config/unicorn.rb -D -E development"
   environment:
-    PATH: "/home/ec2-user/.rbenv/shims:/home/ec2-user/.rbenv/bin:{{ ansible_env.PATH }}"
-
-- name: Check Unicorn logs
-  become: true
-  shell: tail -n 20 /var/www/raisetech-live8-sample-app/log/unicorn.log
-  register: unicorn_logs
-
-- name: Debug Unicorn logs
-  debug:
-    msg: "{{ unicorn_logs.stdout }}"
-
-- name: Check Unicorn process
-  become: true
-  command: pgrep -f unicorn
-  register: unicorn_process
-
-- name: Debug Unicorn process
-  debug:
-    msg: "{{ unicorn_process.stdout }}"
+    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
