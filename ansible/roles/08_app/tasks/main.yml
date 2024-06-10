@@ -17,69 +17,25 @@
 
 - name: create database.yml
   become_user: root
-  copy:
-    content: |
-      # Your database.yml content here
+  template:
+    src: database.yml.j2
     dest: "{{ sample_app_dir }}/config/database.yml"
 
 - name: create storage.yml
   become_user: root
-  copy:
-    content: |
-      # Your storage.yml content here
+  template:
+    src: storage.yml.j2
     dest: "{{ sample_app_dir }}/config/storage.yml"
 
 - name: edit unicorn.rb
   become_user: root
-  copy:
-    content: |
-      # Your unicorn.rb content here
+  template:
+    src: unicorn.rb.j2
     dest: "{{ sample_app_dir }}/config/unicorn.rb"
 
 - name: edit development.rb
   become_user: root
-  copy:
-    content: |
-      # Your development.rb content here
+  template:
+    src: development.rb.j2
     dest: "{{ sample_app_dir }}/config/environments/development.rb"
-
-- name: Install Ruby 3.2.3
-  become: true
-  command: bash -lc "rbenv install -s 3.2.3"
-  environment:
-    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
-
-- name: Set Ruby 3.2.3 as global default
-  become: true
-  command: bash -lc "rbenv global 3.2.3"
-  environment:
-    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
-
-- name: Ensure .ruby-version is correct
-  become_user: root
-  copy:
-    content: "3.2.3\n"
-    dest: "{{ sample_app_dir }}/.ruby-version"
-
-- name: Install Bundler
-  become: true
-  command: bash -lc "gem install bundler"
-  environment:
-    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
-
-- name: Run bundle install
-  become: true
-  command: bash -lc "cd {{ sample_app_dir }} && bundle install"
-  environment:
-    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
-
-- name: Ensure required gems are installed
-  command: bash -lc "cd /var/www/raisetech-live8-sample-app && bundle install"
-  environment:
-    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
-
-- name: Ensure Unicorn is running
-  become: true
-  command: bash -lc "cd {{ sample_app_dir }} && bundle exec unicorn_rails -c config/unicorn.rb -D -E development"
-  environment:
-    PATH: "/usr/local/rbenv/bin:/usr/local/rbenv/shims:{{ ansible_env.PATH }}"
+    
