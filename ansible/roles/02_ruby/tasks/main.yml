@@ -1,4 +1,3 @@
----
 - name: Check if apt-get is available
   command: which apt-get
   register: apt_get_path
@@ -54,23 +53,35 @@
     mode: '0755'
     state: file
 
+- name: Source profile script to initialize rbenv
+  shell: source /etc/profile.d/rbenv.sh
+  ignore_errors: yes
+
 - name: Install Ruby 3.2.3 using rbenv
-  command: bash -lc 'rbenv install 3.2.3 --skip-existing'
+  command: /usr/local/rbenv/bin/rbenv install 3.2.3 --skip-existing
   environment:
-    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+    RBENV_ROOT: /usr/local/rbenv
 
 - name: Set Ruby 3.2.3 as global default
-  command: bash -lc 'rbenv global 3.2.3'
+  command: /usr/local/rbenv/bin/rbenv global 3.2.3
   environment:
-    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+    RBENV_ROOT: /usr/local/rbenv
 
 - name: Rehash rbenv
-  command: bash -lc 'rbenv rehash'
+  command: /usr/local/rbenv/bin/rbenv rehash
   environment:
-    PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+    RBENV_ROOT: /usr/local/rbenv
 
 - name: Ensure rbenv global Ruby version is set
-  become: true
   shell: /usr/local/rbenv/bin/rbenv global 3.2.3
   environment:
     RBENV_ROOT: /usr/local/rbenv
+
+- name: Install Rails
+  gem:
+    name: rails
+    version: "{{ rails_version }}"
+    executable: /usr/local/rbenv/shims/gem
+    user_install: no
+  environment:
+    PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
