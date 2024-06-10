@@ -36,19 +36,10 @@
 - name: Check Nginx configuration
   command: nginx -t
   become: true
+  register: nginx_check
   ignore_errors: true
 
 - name: Restart Nginx if configuration is OK
   command: systemctl restart nginx
   become: true
   when: "'configuration file /etc/nginx/nginx.conf test is successful' in nginx_check.stdout"
-
-- name: Check Unicorn is running
-  shell: ps aux | grep unicorn | grep -v grep
-  register: unicorn_check
-  ignore_errors: true
-
-- name: Restart Unicorn if not running
-  command: /etc/init.d/unicorn restart
-  become: true
-  when: unicorn_check.stdout == ""
