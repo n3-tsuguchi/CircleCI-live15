@@ -55,7 +55,7 @@
     state: file
 
 - name: Install Ruby 3.2.3 using rbenv
-  command: bash -lc 'rbenv install 3.1.2 --skip-existing'
+  command: bash -lc 'rbenv install 3.2.3 --skip-existing'
   environment:
     PATH: "/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
 
