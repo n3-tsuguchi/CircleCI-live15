@@ -6,6 +6,12 @@
     force: yes
   register: git_clone
 
+- name: bundle install
+  shell: bash -lc "bundle install"
+  args: 
+    chdir: "{{ sample_app_dir }}"
+  when: git_clone.changed
+
 - name: change owner /var/www/raisetech-live8-sample-app
   become_user: root
   file:
