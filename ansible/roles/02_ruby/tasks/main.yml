@@ -1,87 +1,57 @@
-- name: Check if apt-get is available
-  command: which apt-get
-  register: apt_get_path
-  ignore_errors: true
-
-- name: Update apt cache if apt-get is available
-  apt:
-    update_cache: yes
-  when: apt_get_path.rc == 0
-
-- name: Install dependencies for rbenv using apt
-  apt:
-    name: 
-      - git
-      - build-essential
-      - libssl-dev
-      - libreadline-dev
-      - zlib1g-dev
-    state: present
-  when: apt_get_path.rc == 0
-
-- name: Clone rbenv repository
-  git:
-    repo: 'https://github.com/rbenv/rbenv.git'
-    dest: /usr/local/rbenv
-    version: master
-    force: yes
-
-- name: Clone ruby-build repository
-  git:
-    repo: 'https://github.com/rbenv/ruby-build.git'
-    dest: /usr/local/rbenv/plugins/ruby-build
-    version: master
-    force: yes
-
-- name: Add rbenv to PATH
-  lineinfile:
-    path: /etc/profile.d/rbenv.sh
-    line: 'export PATH="/usr/local/rbenv/bin:$PATH"'
-    create: yes
-    state: present
-
-- name: Initialize rbenv
-  lineinfile:
-    path: /etc/profile.d/rbenv.sh
-    line: 'eval "$(rbenv init -)"'
-    create: yes
-    state: present
-
-- name: Ensure profile.d scripts are executable
-  file:
-    path: /etc/profile.d/rbenv.sh
-    mode: '0755'
-    state: file
-
-- name: Source profile script to initialize rbenv
-  shell: source /etc/profile.d/rbenv.sh
+# ------------------------------------------------------------#
+#  rbenv
+# ------------------------------------------------------------#
+- name: check rbenv install
+  shell: bash -lc "rbenv --version"
+  register: rbenv_installed
+  changed_when: no
   ignore_errors: yes
 
-- name: Install Ruby 3.2.3 using rbenv
-  command: /usr/local/rbenv/bin/rbenv install 3.2.3 --skip-existing
-  environment:
-    RBENV_ROOT: /usr/local/rbenv
+- name: install rbenv
+  git: 
+    repo: https://github.com/sstephenson/rbenv.git 
+    dest: /home/ec2-user/.rbenv
+  when: rbenv_installed is failed
 
-- name: Set Ruby 3.2.3 as global default
-  command: /usr/local/rbenv/bin/rbenv global 3.2.3
-  environment:
-    RBENV_ROOT: /usr/local/rbenv
+- name: PATH for rbenv
+  lineinfile: 
+    path: /home/ec2-user/.bash_profile
+    line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
+  when: rbenv_installed is failed
 
-- name: Rehash rbenv
-  command: /usr/local/rbenv/bin/rbenv rehash
-  environment:
-    RBENV_ROOT: /usr/local/rbenv
+- name: eval rbenv init
+  lineinfile: 
+    path: /home/ec2-user/.bash_profile
+    line: 'eval "$(rbenv init -)"'
+  when: rbenv_installed is failed
 
-- name: Ensure rbenv global Ruby version is set
-  shell: /usr/local/rbenv/bin/rbenv global 3.2.3
-  environment:
-    RBENV_ROOT: /usr/local/rbenv
+- name: reflect .bash_profile
+  shell: bash -lc "source ~/.bash_profile"
+  when: rbenv_installed is failed
 
-- name: Install Rails
-  gem:
-    name: rails
-    version: "{{ rails_version }}"
-    executable: /usr/local/rbenv/shims/gem
-    user_install: no
-  environment:
-    PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
+- name: install ruby-build
+  git:
+    repo: https://github.com/sstephenson/ruby-build.git
+    dest: /home/ec2-user/.rbenv/plugins/ruby-build
+  when: rbenv_installed is failed
+
+# ------------------------------------------------------------#
+#  Ruby
+# ------------------------------------------------------------#
+- name: check ruby install
+  shell: bash -lc "rbenv version | grep {{ ruby_version }}"
+  register: ruby_installed
+  changed_when: no
+  ignore_errors: yes
+
+- name: install ruby
+  shell: bash -lc "rbenv install {{ ruby_version }}"
+  when: ruby_installed is failed
+
+- name: set default ruby version rehash
+  shell: bash -lc "rbenv rehash"
+  when: ruby_installed is failed
+
+- name: set default ruby version
+  shell: bash -lc "rbenv global {{ ruby_version }}"
+  when: ruby_installed is failed
