@@ -7,11 +7,7 @@
     PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
 
 - name: Install Rails
-  gem: 
-    name: rails
-    version: "{{ rails_version }}"
-    executable: /home/ec2-user/.rbenv/shims/gem
-    user_install: no
+  shell: bash -lc "gem install rails -v {{ rails_version }}"
   when: rails_installed is failed
   environment:
     PATH: "/usr/local/rbenv/shims:/usr/local/rbenv/bin:{{ ansible_env.PATH }}"
